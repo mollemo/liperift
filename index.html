@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liperin leiri 27–31.7</title>
+<style>
+  :root {
+    --red: #CC1F1F;
+    --darkred: #991515;
+    --green: #1A7A40;
+    --navy: #1A1A44;
+    --bg: #F7F2F2;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --sub: #777;
+    --border: #EADADA;
+    --now-bg: #FFF7E0;
+    --now-border: #E8A800;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 40px;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  header {
+    background: var(--red);
+    color: #fff;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header .logo {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  }
+  header .head-text { flex: 1; text-align: center; padding-right: 64px; }
+  header h1 { font-size: 21px; font-weight: 700; }
+  header .clock { font-size: 13px; opacity: 0.9; margin-top: 3px; }
+  @media (max-width: 430px) {
+    header .head-text { padding-right: 0; text-align: left; }
+    header h1 { font-size: 18px; }
+  }
+
+  /* ── Kaksirivinen yläpalkki ── */
+  .day-tabs {
+    display: flex;
+    background: var(--darkred);
+  }
+  .day-tab {
+    flex: 1;
+    padding: 11px 2px;
+    text-align: center;
+    color: rgba(255,255,255,0.65);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    transition: all .15s;
+    line-height: 1.25;
+  }
+  .day-tab.active {
+    color: #fff;
+    border-bottom-color: #fff;
+    background: rgba(255,255,255,0.08);
+  }
+  .day-tab .tab-weekday { display: block; font-size: 13px; }
+  .day-tab .tab-date { display: block; font-size: 11px; opacity: 0.85; }
+  .day-tab .today-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: #FFD24A;
+    border-radius: 50%;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  .info-tabs {
+    display: flex;
+    background: #7E1111;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .info-tabs::-webkit-scrollbar { display: none; }
+  .info-tab {
+    flex: 1 0 auto;
+    white-space: nowrap;
+    padding: 10px 14px;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    transition: all .15s;
+  }
+  .info-tab.active {
+    color: #fff;
+    border-bottom-color: #fff;
+    background: rgba(255,255,255,0.08);
+  }
+  @media (max-width: 430px) {
+    .info-tab { font-size: 12px; padding: 10px 10px; }
+  }
+
+  main { max-width: 560px; margin: 0 auto; padding: 14px 12px; }
+
+  .next-banner {
+    background: var(--now-bg);
+    border: 2px solid var(--now-border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: none;
+  }
+
+  /* ── Sääkortti ── */
+  .weather-card {
+    display: none;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #2B5FA8, #4A86D4);
+    color: #fff;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+  }
+  .weather-card.visible { display: flex; }
+  .weather-card .w-emoji { font-size: 36px; line-height: 1; }
+  .weather-card .w-main { flex: 1; }
+  .weather-card .w-desc { font-size: 14px; font-weight: 700; }
+  .weather-card .w-temp { font-size: 13px; opacity: 0.95; margin-top: 2px; }
+  .weather-card .w-extra { font-size: 11.5px; opacity: 0.85; margin-top: 2px; }
+  .weather-card .w-updated { font-size: 10px; opacity: 0.7; text-align: right; }
+  .next-banner.visible { display: block; }
+  .next-banner .nb-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #A87800;
+    margin-bottom: 3px;
+  }
+  .next-banner .nb-title { font-size: 16px; font-weight: 700; }
+  .next-banner .nb-sub { font-size: 13px; color: var(--sub); margin-top: 2px; }
+  .next-banner .nb-countdown { font-size: 13px; font-weight: 600; color: #A87800; margin-top: 4px; }
+
+  .event {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    transition: opacity .3s;
+  }
+  .event.past { opacity: 0.45; }
+  .event.current {
+    border: 2px solid var(--now-border);
+    background: var(--now-bg);
+    box-shadow: 0 2px 10px rgba(232,168,0,0.2);
+  }
+  .event.current .badge-now {
+    display: inline-block;
+    background: var(--now-border);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+  .badge-now { display: none; }
+
+  .ev-icon {
+    width: 40px; height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    color: #fff;
+  }
+  .ic-red   { background: var(--red); }
+  .ic-green { background: var(--green); }
+  .ic-navy  { background: var(--navy); }
+  .ic-darkred { background: var(--darkred); }
+  .ic-blue  { background: #333399; }
+
+  .ev-body { flex: 1; }
+  .ev-time { font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 1px; }
+  .ev-title { font-size: 15px; font-weight: 700; line-height: 1.35; }
+  .ev-title.accent { color: var(--red); }
+  .ev-sub { font-size: 12.5px; color: var(--sub); margin-top: 3px; line-height: 1.45; }
+
+  a.maplink {
+    color: var(--red);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  a.maplink:active { opacity: 0.7; }
+
+  .addr-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .addr-card .ev-icon { font-size: 18px; }
+  .addr-card h3 { font-size: 15px; color: var(--red); margin-bottom: 3px; }
+  .addr-card p { font-size: 13px; color: var(--sub); line-height: 1.55; }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    color: #AAA;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+<header>
+  <img class="logo" src="logo.png" alt="Manse F-tytöt">
+  <div class="head-text">
+    <h1>Liperin leiri 27–31.7</h1>
+    <div class="clock" id="clock"></div>
+  </div>
+</header>
+
+<div class="day-tabs" id="dayTabs"></div>
+<div class="info-tabs" id="infoTabs"></div>
+</div>
+
+<main>
+  <div class="weather-card" id="weatherCard">
+    <div class="w-emoji" id="wEmoji"></div>
+    <div class="w-main">
+      <div class="w-desc" id="wDesc"></div>
+      <div class="w-temp" id="wTemp"></div>
+      <div class="w-extra" id="wExtra"></div>
+    </div>
+    <div class="w-updated" id="wUpdated"></div>
+  </div>
+
+  <div class="next-banner" id="nextBanner">
+    <div class="nb-label">Seuraavaksi</div>
+    <div class="nb-title" id="nbTitle"></div>
+    <div class="nb-sub" id="nbSub"></div>
+    <div class="nb-countdown" id="nbCountdown"></div>
+  </div>
+
+  <div id="eventList"></div>
+
+  <footer>Liperin leiri · F-tytöt</footer>
+</main>
+
+<script>
+// ─── APUFUNKTIOT ─────────────────────────────────────────────────────────
+function mapLink(label, address) {
+  const url = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(address);
+  return `<a class="maplink" href="${url}" target="_blank" rel="noopener">📍 ${label}</a>`;
+}
+
+// ─── OSOITTEET ───────────────────────────────────────────────────────────
+const PLACES = {
+  // Majoituspaikat
+  patteristo:  { name: "Ylämyllyn koulu, Patteriston yksikkö", addr: "Laavupolku 2, 80400 Ylämylly" },
+  paloaukea:   { name: "Ylämyllyn koulu, Paloaukean yksikkö",  addr: "Patteristontie 12 e, 80400 Ylämylly" },
+  jyri:        { name: "Ylämyllyn koulu, Jyrin yksikkö",       addr: "Patteristontie 12 a, 80400 Ylämylly" },
+  paloaukeaPk: { name: "Paloaukean päiväkoti",                 addr: "Patteristontie 12 D, 80400 Ylämylly" },
+  lautasuoPk:  { name: "Lautasuon päiväkoti",                  addr: "Ylämyllyntie 52, 80400 Ylämylly" },
+  liperinKoulu:{ name: "Liperin koulu",                        addr: "Koulukuja 2, 83100 Liperi" },
+  // Muut paikat
+  parnavaara:  { name: "Pärnävaaran liikunta-alue",    addr: "Pärnävaarantie, 80400 Ylämylly" },
+  ruokailu:    { name: "Ruokailupaikka (TÄYDENNÄ)",    addr: "Osoite, 83100 Liperi" },
+  kentta1:     { name: "Pelikenttä 1 (TÄYDENNÄ)",      addr: "Osoite, 83100 Liperi" },
+};
+
+function P(key) {
+  const p = PLACES[key];
+  return mapLink(p.name + " (" + p.addr + ")", p.name + ", " + p.addr);
+}
+
+// ─── YHTEYSTIEDOT ────────────────────────────────────────────────────────
+const CONTACTS = [
+  { role: "Leirinjohtaja",        name: "Marko Huhtanen",      email: "marko.huhtanen@viu.fi",            phone: "0401722954" },
+  { role: "Talouspäällikkö",      name: "Tomi Haverinen",      email: "haverinen.tomi@gmail.com",         phone: "0505847975" },
+  { role: "Kilpailupäällikkö",    name: "Ilpo Mustonen",       email: "junioripaallikko@gmail.com",       phone: "0504925387" },
+  { role: "Viestintävastaava",    name: "Mira Loponen",        email: "mira.c.loponen@gmail.com",         phone: "0400280180" },
+  { role: "Majoituspäällikkö",    name: "Outi Kontkanen",      email: "outikontkanen@gmail.com",          phone: "0407511535" },
+  { role: "Majoituspäällikkö",    name: "Marika Rummukainen",  email: "marika.rummukainen@gmail.com",     phone: "0405496146" },
+  { role: "Ruokahuoltopäällikkö", name: "Kalle Helminen",      email: "kallehelminen80@outlook.com",      phone: "0414336588" },
+  { role: "Tuomaripäällikkö",     name: "Saija Kinnunen",      email: "saijakinnunen@windowslive.com",    phone: "0503033781" },
+  { role: "Turvallisuuspäällikkö",name: "Timo Palander",       email: "timo.palander@outlook.com",        phone: "0503249260" },
+  { role: "Hygieniavastaava",     name: "Susanna Hirvonen",    email: "sussu.hirvonen@gmail.com",         phone: "0440960060" },
+  { role: "Talkoovastaava",       name: "Anssi Vartiainen",    email: "anssi.vartiainen@gmail.com",       phone: "0468103901" },
+  { role: "Turvallisuusvastaava", name: "Pekka Lehtola",       email: "pekka890lehtola@gmail.com",        phone: "0451026616" },
+  { role: "Kenttävastaava",       name: "Matti Hirvonen",      email: "matti.hirvonen@kreate.fi",         phone: "0405904258" },
+  { role: "Palkintovastaava",     name: "Jenna Storhammar",    email: "jenna.storhammar@gmail.com",       phone: "0442527796" },
+  { role: "Kioskivastaava",       name: "Tiina Karvinen",      email: "tiinaikonen1@gmail.com",           phone: "0453474742" },
+  { role: "Liperin kunta",        name: "Reetta Partanen",     email: "reetta.partanen@liperi.fi",        phone: "0400678799" },
+  { role: "Leirituutori / PPL",   name: "Mona Hupli-Kotiranta",email: "mona.hupli-kotiranta@pesis.fi",    phone: "0407613068" },
+  { role: "Seuran puheenjohtaja", name: "Juha Kröger",         email: "juha.kroger@kostamokoti.fi",       phone: "0505532156" },
+];
+
+// ─── TALKOOT JA KYYDIT ───────────────────────────────────────────────────
+// Kootut talkoovuorot ja kyydit koko viikolta.
+// - Tavallinen talkoovuoro: ei type-kenttää, roles = roolit ja nimet
+// - Kyyti: type: "kyyti", roles = autot ja kuljettajat
+//   Kuljettajan kohdalle voi merkitä myös paikkamäärän, esim. "Maija (4 paikkaa)"
+// Tyhjä person ("") näkyy listassa punaisena "Avoin"-merkintänä.
+const TALKOOT = [
+  // ── Ma 27.7 ──
+  { key: "2026-07-27", time: "12:00", type: "kyyti", title: "Kyydit otteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  { key: "2026-07-27", time: "12:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
+      { role: "Kirjuri",     person: "" },
+      { role: "Takatuomari", person: "" },
+  ]},
+  { key: "2026-07-27", time: "17:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
+      { role: "Kirjuri",     person: "" },
+      { role: "Takatuomari", person: "" },
+  ]},
+  { key: "2026-07-27", time: "19:30", type: "kyyti", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  // ── Ti 28.7 ──
+  { key: "2026-07-28", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  { key: "2026-07-28", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
+      { role: "Kirjuri",     person: "" },
+      { role: "Takatuomari", person: "" },
+  ]},
+  { key: "2026-07-28", time: "12:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
+      { role: "Kirjuri",     person: "" },
+      { role: "Takatuomari", person: "" },
+  ]},
+  { key: "2026-07-28", time: "19:30", type: "kyyti", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  // ── Ke 29.7 ──
+  { key: "2026-07-29", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  { key: "2026-07-29", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
+      { role: "Kirjuri",     person: "" },
+      { role: "Takatuomari", person: "" },
+  ]},
+  { key: "2026-07-29", time: "19:30", type: "kyyti", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  // ── To 30.7 ──
+  { key: "2026-07-30", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  { key: "2026-07-30", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
+      { role: "Kirjuri",     person: "" },
+      { role: "Takatuomari", person: "" },
+  ]},
+  { key: "2026-07-30", time: "18:00", type: "kyyti", title: "Kyydit toimintailtaan", place: "Pärnävaaran liikunta-alueelle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  // ── Pe 31.7 ──
+  { key: "2026-07-31", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+  { key: "2026-07-31", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
+      { role: "Kirjuri",     person: "" },
+      { role: "Takatuomari", person: "" },
+  ]},
+  { key: "2026-07-31", time: "14:30", type: "kyyti", title: "Kotiinlähtökyydit", place: "Kentältä kotiin", roles: [
+      { role: "Auto 1", person: "" },
+      { role: "Auto 2", person: "" },
+      { role: "Auto 3", person: "" },
+  ]},
+];
+
+// ─── RUOKALISTA (päiväkohtainen) ─────────────────────────────────────────
+const MENU = [
+  { day: "Su 26.7", key: "2026-07-26", meals: [
+      { name: "Iltapala", icon: "🥪", time: "Klo 19–21", text: "Jyrin ruokalassa. Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+  ]},
+  { day: "Ma 27.7", key: "2026-07-27", meals: [
+      { name: "Aamupala", icon: "☀️", time: "Klo 7–9", text: "Jyrin ruokalassa. Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { name: "Lounas", icon: "🍴", time: "Klo 11–13", text: "Lihapyörykät, kastike, peruna, salaattikomponentit, ruisleipä, levite, juomat." },
+      { name: "Päivällinen", icon: "🍽️", time: "Klo 16–18", text: "Kahdenkalankeitto, riisipiirakka, munavoi, banaani, ruisleipä, levite, juomat." },
+      { name: "Iltapala", icon: "🥪", time: "Klo 19–21", text: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+  ]},
+  { day: "Ti 28.7", key: "2026-07-28", meals: [
+      { name: "Aamupala", icon: "☀️", time: "Klo 7–9", text: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { name: "Lounas", icon: "🍴", time: "Klo 11–13", text: "Broilerinakkikastike, tummariisi, salaattikomponentit, ruisleipä, levite, juomat." },
+      { name: "Päivällinen", icon: "🍽️", time: "Klo 16–18", text: "Jauheliha-makaronilaatikko, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
+      { name: "Iltapala", icon: "🥪", time: "Klo 19–21", text: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+  ]},
+  { day: "Ke 29.7", key: "2026-07-29", meals: [
+      { name: "Aamupala", icon: "☀️", time: "Klo 7–9", text: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { name: "Lounas", icon: "🍴", time: "Klo 11–13", text: "Pinaatti-raejuustonapit, kermaviilikastike, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
+      { name: "Päivällinen", icon: "🍽️", time: "Klo 15.30–17.30", text: "Broilerikiusaus, salaattikomponentit, ruisleipä, levite, juomat." },
+      { name: "Iltapala", icon: "🥪", time: "Klo 19.30–21.30", text: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+  ]},
+  { day: "To 30.7", key: "2026-07-30", meals: [
+      { name: "Aamupala", icon: "☀️", time: "Klo 7–9", text: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { name: "Lounas", icon: "🍴", time: "Klo 11–13", text: "Jauhelihakastike, minispagetti, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
+      { name: "Päivällinen", icon: "🍽️", time: "Klo 15.30–17.30", text: "Riisivelli, mansikkarouhe, grahamlihapiirakka, ruisleipä, levite, juomat." },
+      { name: "Iltapala", icon: "🥪", time: "Klo 19.30–21.30", text: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+  ]},
+  { day: "Pe 31.7", key: "2026-07-31", meals: [
+      { name: "Aamupala", icon: "☀️", time: "Klo 7–9", text: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { name: "Lounas", icon: "🍴", time: "Klo 11–13", text: "Broilerinugetit, currymajoneesi, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
+  ]},
+];
+
+// ─── PÄIVÄDATA ───────────────────────────────────────────────────────────
+// TODO: Täydennä tapahtumat kun aikataulu on tiedossa.
+// Rakenne sama kuin Kouvolan sivulla:
+//   time: "HH:MM" tai null, endTime: arvioitu loppu,
+//   icon: emoji, color: ic-red/ic-green/ic-blue/ic-navy/ic-darkred,
+//   accent: true = punainen otsikko
+const DAYS = [
+  { key: "2026-07-27", label: "Ma", date: "27.7", events: [
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Mahdollisuus aamupalaan", sub: "Varattava erikseen · Jyrin ruokalassa<br>Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { time: "09:00", endTime: "12:00", icon: "ℹ️", color: "ic-red", title: "Saapuminen leirille", sub: "" },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Lihapyörykät, kastike, peruna, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "13:30", endTime: "14:00", icon: "🎉", color: "ic-red", title: "Leirin avajaiset", accent: true, sub: "" },
+      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Kahdenkalankeitto, riisipiirakka, munavoi, banaani, ruisleipä, levite, juomat." },
+      { time: "17:30", endTime: "19:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "21:00", endTime: "22:00", icon: "☕", color: "ic-navy", title: "Valmentajien vetäjäkahvit + info", sub: P("patteristo") },
+      { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", sub: "" },
+  ]},
+  { key: "2026-07-28", label: "Ti", date: "28.7", events: [
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Broilerinakkikastike, tummariisi, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Jauheliha-makaronilaatikko, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "17:30", endTime: "19:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "19:30", endTime: "20:30", icon: "⚾", color: "ic-darkred", title: "Ottelu Tuomarit – Valmentajat", sub: "Patteriston majoituskoulun kentällä — " + P("patteristo") },
+      { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", sub: "" },
+  ]},
+  { key: "2026-07-29", label: "Ke", date: "29.7", events: [
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Pinaatti-raejuustonapit, kermaviilikastike, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "15:30", endTime: "17:30", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Broilerikiusaus, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "18:00", endTime: "19:30", icon: "🎉", color: "ic-red", title: "Leirin juhlaottelu NYP", accent: true, sub: "" },
+      { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", sub: "" },
+  ]},
+  { key: "2026-07-30", label: "To", date: "30.7", events: [
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Jauhelihakastike, minispagetti, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Riisivelli, mansikkarouhe, grahamlihapiirakka, ruisleipä, levite, juomat." },
+      { time: "18:30", endTime: "19:30", icon: "🏃", color: "ic-red", title: "Toimintailta", sub: P("parnavaara") },
+      { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", sub: "" },
+  ]},
+  { key: "2026-07-31", label: "Pe", date: "31.7", events: [
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Broilerinugetit, currymajoneesi, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "11:00", endTime: "13:00", icon: "🏠", color: "ic-darkred", title: "Majoitustilojen luovutukset alkavat", accent: true, sub: "" },
+      { time: "12:30", endTime: "14:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
+  ]},
+];
+
+// ─── SÄÄENNUSTE (Open-Meteo, ilmainen, ei API-avainta) ───────────────────
+// Sijainti: Liperin keskusta
+const WEATHER_LAT = 62.531;
+const WEATHER_LON = 29.379;
+let weatherData = null; // { daily: {...} }
+
+const WMO = {
+  0:  ["☀️", "Selkeää"],
+  1:  ["🌤️", "Enimmäkseen selkeää"],
+  2:  ["⛅", "Puolipilvistä"],
+  3:  ["☁️", "Pilvistä"],
+  45: ["🌫️", "Sumua"], 48: ["🌫️", "Sumua"],
+  51: ["🌦️", "Tihkusadetta"], 53: ["🌦️", "Tihkusadetta"], 55: ["🌦️", "Tihkusadetta"],
+  56: ["🌧️", "Jäätävää tihkua"], 57: ["🌧️", "Jäätävää tihkua"],
+  61: ["🌧️", "Heikkoa sadetta"], 63: ["🌧️", "Sadetta"], 65: ["🌧️", "Voimakasta sadetta"],
+  66: ["🌧️", "Jäätävää sadetta"], 67: ["🌧️", "Jäätävää sadetta"],
+  71: ["❄️", "Lumisadetta"], 73: ["❄️", "Lumisadetta"], 75: ["❄️", "Lumisadetta"], 77: ["❄️", "Lumisadetta"],
+  80: ["🌦️", "Sadekuuroja"], 81: ["🌦️", "Sadekuuroja"], 82: ["🌧️", "Voimakkaita kuuroja"],
+  85: ["🌨️", "Lumikuuroja"], 86: ["🌨️", "Lumikuuroja"],
+  95: ["⛈️", "Ukkosta"], 96: ["⛈️", "Ukkosta ja rakeita"], 99: ["⛈️", "Ukkosta ja rakeita"],
+};
+
+async function fetchWeather() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_LAT}&longitude=${WEATHER_LON}` +
+      `&hourly=temperature_2m,weather_code,precipitation_probability,wind_speed_10m` +
+      `&wind_speed_unit=ms&timezone=Europe%2FHelsinki&forecast_days=16`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    weatherData = await res.json();
+    weatherData._fetched = new Date();
+    renderWeather();
+    if (getCurrentTab() === WEATHER_TAB) renderEvents();
+  } catch (err) {
+    console.warn("Sään haku epäonnistui:", err);
+    weatherData = null;
+    renderWeather();
+    if (getCurrentTab() === WEATHER_TAB) renderEvents();
+  }
+}
+
+function renderWeather() {
+  // Päivänäkymän sääkortti on poistettu käytöstä — Sää-välilehti riittää.
+  document.getElementById("weatherCard").classList.remove("visible");
+}
+
+// ─── LOGIIKKA ────────────────────────────────────────────────────────────
+const MENU_TAB = DAYS.length;
+const ADDR_TAB = DAYS.length + 1;
+const CONTACTS_TAB = DAYS.length + 2;
+const WEATHER_TAB = DAYS.length + 3;
+const TALKOOT_TAB = DAYS.length + 4;
+const INFO_TABS = [MENU_TAB, ADDR_TAB, CONTACTS_TAB, WEATHER_TAB, TALKOOT_TAB];
+let selectedTab = null;
+
+function nowFi() {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Helsinki" }));
+}
+
+function todayKey() {
+  const n = nowFi();
+  return n.getFullYear() + "-" + String(n.getMonth()+1).padStart(2,"0") + "-" + String(n.getDate()).padStart(2,"0");
+}
+
+function minutesNow() {
+  const n = nowFi();
+  return n.getHours()*60 + n.getMinutes();
+}
+
+function toMin(hhmm) {
+  if (!hhmm) return null;
+  const [h, m] = hhmm.split(":").map(Number);
+  return h*60 + m;
+}
+
+function getAutoDayIndex() {
+  const tk = todayKey();
+  const idx = DAYS.findIndex(d => d.key === tk);
+  if (idx >= 0) return idx;
+  return tk < DAYS[0].key ? 0 : DAYS.length - 1;
+}
+
+function getCurrentTab() {
+  return selectedTab !== null ? selectedTab : getAutoDayIndex();
+}
+
+function computeStatuses(day) {
+  const isToday = day.key === todayKey();
+  if (!isToday) {
+    return todayKey() > day.key ? day.events.map(() => "past") : day.events.map(() => "");
+  }
+  const now = minutesNow();
+  const evs = day.events;
+  const statuses = evs.map(() => "");
+
+  evs.forEach((e, i) => {
+    if (e.time) {
+      const start = toMin(e.time);
+      const end = e.endTime ? toMin(e.endTime) : start + 60;
+      if (now >= end) statuses[i] = "past";
+      else if (now >= start) statuses[i] = "current";
+      else statuses[i] = "future";
+    }
+  });
+  for (let i = 0; i < evs.length; i++) {
+    if (!evs[i].time) {
+      let next = null;
+      for (let j = i+1; j < evs.length; j++) if (evs[j].time) { next = statuses[j]; break; }
+      if (next === "past" || next === "current") statuses[i] = "past";
+      else statuses[i] = "";
+    }
+  }
+  return statuses;
+}
+
+function findNextEvent(day, statuses) {
+  if (day.key !== todayKey()) return null;
+  let best = null;
+  day.events.forEach((e, i) => {
+    if (e.time && statuses[i] === "future") {
+      if (best === null || toMin(e.time) < toMin(day.events[best].time)) best = i;
+    }
+  });
+  return best;
+}
+
+// ─── RENDERÖINTI ─────────────────────────────────────────────────────────
+function renderTabs() {
+  const dayCont = document.getElementById("dayTabs");
+  dayCont.innerHTML = "";
+  const tk = todayKey();
+  const cur = getCurrentTab();
+
+  // Ylärivi: 5 päivää (viikonpäivä + päivämäärä allekkain)
+  DAYS.forEach((d, i) => {
+    const b = document.createElement("button");
+    b.className = "day-tab" + (i === cur ? " active" : "");
+    b.innerHTML = `<span class="tab-weekday">${d.label}${d.key === tk ? '<span class="today-dot"></span>' : ""}</span>
+                   <span class="tab-date">${d.date}</span>`;
+    b.onclick = () => { selectedTab = i; render(); };
+    dayCont.appendChild(b);
+  });
+
+  // Alarivi: info-välilehdet
+  const infoCont = document.getElementById("infoTabs");
+  infoCont.innerHTML = "";
+
+  const tb = document.createElement("button");
+  tb.className = "info-tab" + (cur === TALKOOT_TAB ? " active" : "");
+  tb.innerHTML = "🙋 Talkoot";
+  tb.onclick = () => { selectedTab = TALKOOT_TAB; render(); };
+  infoCont.appendChild(tb);
+
+  const mb = document.createElement("button");
+  mb.className = "info-tab" + (cur === MENU_TAB ? " active" : "");
+  mb.innerHTML = "🍴 Ruoka";
+  mb.onclick = () => { selectedTab = MENU_TAB; render(); };
+  infoCont.appendChild(mb);
+
+  const ab = document.createElement("button");
+  ab.className = "info-tab" + (cur === ADDR_TAB ? " active" : "");
+  ab.innerHTML = "📍 Osoitteet";
+  ab.onclick = () => { selectedTab = ADDR_TAB; render(); };
+  infoCont.appendChild(ab);
+
+  const cb = document.createElement("button");
+  cb.className = "info-tab" + (cur === CONTACTS_TAB ? " active" : "");
+  cb.innerHTML = "📞 Yhteystiedot";
+  cb.onclick = () => { selectedTab = CONTACTS_TAB; render(); };
+  infoCont.appendChild(cb);
+
+  const wb = document.createElement("button");
+  wb.className = "info-tab" + (cur === WEATHER_TAB ? " active" : "");
+  wb.innerHTML = "🌤️ Sää";
+  wb.onclick = () => { selectedTab = WEATHER_TAB; render(); };
+  infoCont.appendChild(wb);
+}
+
+function renderAddressesTab() {
+  document.getElementById("nextBanner").classList.remove("visible");
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+
+  // Ylimääräiset majoituspaikat poistetaan myöhemmin, kun oma koulu varmistuu
+  const groups = [
+    { icon: "🏠", color: "ic-darkred", title: "Majoituskoulut", places: ["patteristo", "paloaukea", "jyri", "paloaukeaPk", "lautasuoPk", "liperinKoulu"] },
+    { icon: "🏃", color: "ic-red",     title: "Toimintailta", places: ["parnavaara"] },
+    { icon: "🍴", color: "ic-green",   title: "Ruokailu", places: ["ruokailu"] },
+    { icon: "⚾", color: "ic-red",     title: "Pelikentät", places: ["kentta1"] },
+  ];
+
+  groups.forEach(g => {
+    const lines = g.places.map(k => `<span style="display:block;margin-bottom:6px;">${P(k)}</span>`).join("");
+    const div = document.createElement("div");
+    div.className = "addr-card";
+    div.innerHTML = `
+      <div class="ev-icon ${g.color}">${g.icon}</div>
+      <div class="ev-body">
+        <h3>${g.title}</h3>
+        <p>${lines}${g.note ? "<br><em>" + g.note + "</em>" : ""}</p>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function renderMenuTab() {
+  document.getElementById("nextBanner").classList.remove("visible");
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+
+  const tk = todayKey();
+
+  MENU.forEach(d => {
+    const isToday = d.key === tk;
+
+    const hdr = document.createElement("div");
+    hdr.style.cssText = "font-size:16px;font-weight:700;color:var(--red);margin:14px 4px 8px;";
+    hdr.innerHTML = d.day + (isToday ? ' <span style="background:var(--now-border);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">Tänään</span>' : "");
+    list.appendChild(hdr);
+
+    if (d.meals.length === 0) {
+      const p = document.createElement("p");
+      p.style.cssText = "font-size:13px;color:var(--sub);margin:0 4px 8px;";
+      p.innerHTML = "<em>Ruokalista täydentyy myöhemmin</em>";
+      list.appendChild(p);
+      return;
+    }
+
+    d.meals.forEach(m => {
+      const div = document.createElement("div");
+      div.className = "event";
+      div.innerHTML = `
+        <div class="ev-icon ${m.name === "Iltapala" ? "ic-navy" : "ic-green"}">${m.icon}</div>
+        <div class="ev-body">
+          ${m.time ? `<div class="ev-time">${m.time}</div>` : ""}
+          <div class="ev-title">${m.name}</div>
+          <div class="ev-sub">${m.text}${m.note ? "<br><strong>" + m.note + "</strong>" : ""}</div>
+        </div>`;
+      list.appendChild(div);
+    });
+  });
+}
+
+function renderContactsTab() {
+  document.getElementById("nextBanner").classList.remove("visible");
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+
+  CONTACTS.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "addr-card";
+    div.innerHTML = `
+      <div class="ev-icon ic-red">👤</div>
+      <div class="ev-body">
+        <h3>${c.name}</h3>
+        <p style="margin-bottom:4px;"><strong>${c.role}</strong></p>
+        <p>
+          <a class="maplink" href="tel:${c.phone}">📞 ${c.phone.replace(/^(\d{3})(\d{3})(\d{4})$/, "$1 $2 $3")}</a><br>
+          <a class="maplink" href="mailto:${c.email}">✉️ ${c.email}</a>
+        </p>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function renderWeatherTab() {
+  document.getElementById("nextBanner").classList.remove("visible");
+  document.getElementById("weatherCard").classList.remove("visible");
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+
+  if (!weatherData || !weatherData.hourly) {
+    const p = document.createElement("p");
+    p.style.cssText = "font-size:14px;color:var(--sub);text-align:center;margin-top:20px;";
+    p.innerHTML = "Sääennustetta haetaan… Jos tämä viesti ei katoa, ennustepalveluun ei juuri nyt saada yhteyttä.";
+    list.appendChild(p);
+    return;
+  }
+
+  const H = weatherData.hourly;
+  const tk = todayKey();
+  const nowH = nowFi().getHours();
+  const campKeys = DAYS.map(d => d.key);
+  const wdNames = ["Su","Ma","Ti","Ke","To","Pe","La"];
+  const SHOW_HOURS = [0, 3, 6, 9, 12, 15, 18, 21];
+
+  // Ryhmittele tunnit päivittäin
+  const byDay = {};
+  H.time.forEach((t, i) => {
+    const [date, hm] = t.split("T");
+    const hour = parseInt(hm.slice(0, 2));
+    if (!SHOW_HOURS.includes(hour)) return;
+    if (date === tk && hour < nowH - 2) return; // piilota jo menneet tunnit tältä päivältä
+    if (date < tk) return;
+    (byDay[date] = byDay[date] || []).push({
+      hour,
+      temp: Math.round(H.temperature_2m[i]),
+      code: H.weather_code[i],
+      rain: H.precipitation_probability[i],
+      wind: Math.round(H.wind_speed_10m[i]),
+    });
+  });
+
+  // Otsikko + päivitysaika
+  const f = weatherData._fetched;
+  const head = document.createElement("p");
+  head.style.cssText = "font-size:12px;color:var(--sub);margin:2px 4px 10px;";
+  head.textContent = `Sääennuste · Liperi — päivitetty ${String(f.getHours()).padStart(2,"0")}:${String(f.getMinutes()).padStart(2,"0")} (Open-Meteo)`;
+  list.appendChild(head);
+
+  Object.keys(byDay).sort().forEach(date => {
+    const hours = byDay[date];
+    if (hours.length === 0) return;
+
+    const d = new Date(date + "T12:00:00");
+    const isCamp = campKeys.includes(date);
+    const isToday = date === tk;
+    const label = `${wdNames[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`;
+
+    const card = document.createElement("div");
+    card.style.cssText = "background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 0 6px;margin-bottom:10px;" +
+      (isCamp ? "border:2px solid var(--red);" : "");
+
+    const hdr = document.createElement("div");
+    hdr.style.cssText = "font-size:14px;font-weight:700;color:var(--text);padding:0 14px 6px;";
+    hdr.innerHTML = label
+      + (isToday ? ' <span style="background:var(--now-border);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">Tänään</span>' : "")
+      + (isCamp ? ' <span style="background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">⚾ Leiripäivä</span>' : "");
+    card.appendChild(hdr);
+
+    const strip = document.createElement("div");
+    strip.style.cssText = "display:flex;overflow-x:auto;gap:2px;padding:0 8px;-webkit-overflow-scrolling:touch;";
+    hours.forEach(h => {
+      const [emoji] = WMO[h.code] || ["🌡️"];
+      const cell = document.createElement("div");
+      cell.style.cssText = "min-width:56px;text-align:center;padding:4px 2px;";
+      cell.innerHTML = `
+        <div style="font-size:11px;font-weight:700;color:var(--sub);">${String(h.hour).padStart(2,"0")}</div>
+        <div style="font-size:22px;line-height:1.3;">${emoji}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--red);">${h.temp}°</div>
+        <div style="font-size:10.5px;color:#2B5FA8;">💧 ${h.rain}%</div>
+        <div style="font-size:10.5px;color:var(--sub);">${h.wind} m/s</div>`;
+      strip.appendChild(cell);
+    });
+    card.appendChild(strip);
+    list.appendChild(card);
+  });
+}
+
+function renderTalkootTab() {
+  document.getElementById("nextBanner").classList.remove("visible");
+  document.getElementById("weatherCard").classList.remove("visible");
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+
+  const wdNames = ["Su","Ma","Ti","Ke","To","Pe","La"];
+
+  // Yhteenveto avoimista vuoroista ja kyydeistä
+  let openShifts = 0, openRides = 0;
+  TALKOOT.forEach(t => t.roles.forEach(r => {
+    if (!r.person) { if (t.type === "kyyti") openRides++; else openShifts++; }
+  }));
+  const totalOpen = openShifts + openRides;
+
+  const summary = document.createElement("div");
+  summary.style.cssText = totalOpen > 0
+    ? "background:var(--now-bg);border:2px solid var(--now-border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:#A87800;"
+    : "background:#E8F5EC;border:2px solid var(--green);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:var(--green);";
+  summary.innerHTML = totalOpen > 0
+    ? `🙋 Avoimia talkoovuoroja: ${openShifts} &nbsp;·&nbsp; 🚗 Avoimia kyytejä: ${openRides}<br><span style="font-size:12px;font-weight:600;">Ilmoittaudu valmentajalle!</span>`
+    : "✅ Kaikki talkoovuorot ja kyydit täytetty — kiitos!";
+  list.appendChild(summary);
+
+  // Ryhmittele päivittäin
+  const tk = todayKey();
+  let lastKey = null;
+  TALKOOT
+    .slice()
+    .sort((a, b) => a.key === b.key ? a.time.localeCompare(b.time) : a.key.localeCompare(b.key))
+    .forEach(t => {
+      if (t.key !== lastKey) {
+        lastKey = t.key;
+        const d = new Date(t.key + "T12:00:00");
+        const hdr = document.createElement("div");
+        hdr.style.cssText = "font-size:16px;font-weight:700;color:var(--red);margin:14px 4px 8px;";
+        hdr.innerHTML = `${wdNames[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`
+          + (t.key === tk ? ' <span style="background:var(--now-border);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">Tänään</span>' : "");
+        list.appendChild(hdr);
+      }
+
+      const rolesHtml = t.roles.map(r => r.person
+        ? `<div style="margin-top:3px;"><strong>${r.role}:</strong> ${r.person}</div>`
+        : `<div style="margin-top:3px;"><strong>${r.role}:</strong> <span style="color:var(--red);font-weight:700;">❗ Avoin — ilmoittaudu!</span></div>`
+      ).join("");
+
+      const isRide = t.type === "kyyti";
+      const div = document.createElement("div");
+      div.className = "event";
+      div.innerHTML = `
+        <div class="ev-icon ${isRide ? "ic-blue" : "ic-red"}">${isRide ? "🚗" : "🙋"}</div>
+        <div class="ev-body">
+          <div class="ev-time">${t.time}</div>
+          <div class="ev-title">${t.title}</div>
+          ${t.place ? `<div class="ev-sub">${t.place}</div>` : ""}
+          <div class="ev-sub">${rolesHtml}</div>
+        </div>`;
+      list.appendChild(div);
+    });
+}
+
+function renderEvents() {
+  const tab = getCurrentTab();
+  if (tab === ADDR_TAB) { renderAddressesTab(); return; }
+  if (tab === MENU_TAB) { renderMenuTab(); return; }
+  if (tab === CONTACTS_TAB) { renderContactsTab(); return; }
+  if (tab === WEATHER_TAB) { renderWeatherTab(); return; }
+  if (tab === TALKOOT_TAB) { renderTalkootTab(); return; }
+
+  const day = DAYS[tab];
+  const statuses = computeStatuses(day);
+  const nextIdx = findNextEvent(day, statuses);
+
+  const banner = document.getElementById("nextBanner");
+  if (nextIdx !== null) {
+    const e = day.events[nextIdx];
+    document.getElementById("nbTitle").textContent = (e.time ? e.time + " — " : "") + e.title;
+    document.getElementById("nbSub").innerHTML = e.sub || "";
+    const mins = toMin(e.time) - minutesNow();
+    const h = Math.floor(mins/60), m = mins % 60;
+    document.getElementById("nbCountdown").textContent =
+      mins <= 0 ? "Alkaa nyt!" :
+      h > 0 ? `Alkaa ${h} h ${m} min kuluttua` : `Alkaa ${m} min kuluttua`;
+    banner.classList.add("visible");
+  } else {
+    banner.classList.remove("visible");
+  }
+
+  const list = document.getElementById("eventList");
+  list.innerHTML = "";
+  day.events.forEach((e, i) => {
+    const div = document.createElement("div");
+    div.className = "event " + (statuses[i] || "");
+    div.innerHTML = `
+      <div class="ev-icon ${e.color}">${e.icon}</div>
+      <div class="ev-body">
+        ${e.time ? `<div class="ev-time">${e.time}</div>` : ""}
+        <div class="ev-title ${e.accent ? "accent" : ""}">${e.title}<span class="badge-now">Nyt</span></div>
+        ${e.sub ? `<div class="ev-sub">${e.sub}</div>` : ""}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function renderClock() {
+  const n = nowFi();
+  const days = ["su","ma","ti","ke","to","pe","la"];
+  document.getElementById("clock").textContent =
+    `${days[n.getDay()]} ${n.getDate()}.${n.getMonth()+1}. klo ${String(n.getHours()).padStart(2,"0")}:${String(n.getMinutes()).padStart(2,"0")}`;
+}
+
+function render() {
+  renderTabs();
+  renderEvents();
+  renderWeather();
+  renderClock();
+}
+
+render();
+fetchWeather(); // hae sää heti sivun avautuessa
+setInterval(fetchWeather, 60 * 60 * 1000); // päivitä sää tunnin välein
+setInterval(() => {
+  if (!INFO_TABS.includes(getCurrentTab())) render();
+  else renderClock();
+}, 30000);
+setInterval(renderClock, 1000);
+</script>
+</body>
+</html>
