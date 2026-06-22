@@ -1083,14 +1083,24 @@ function renderEvents() {
   // Yhdistä Sheetin ottelut tämän päivän aikajanalle
   const gameEvents = (gamesData || [])
     .filter(g => gameDayInfo(g.pvm).key === baseDay.key)
-    .map(g => ({
-      time: g.klo,
-      endTime: addMin(g.klo, 60),
-      icon: "⚾",
-      color: "ic-red",
-      title: esc(g.joukkueet),
-      sub: g.kentta ? esc(g.kentta) : "",
-    }));
+    .map(g => {
+      const defs = g.home ? HOME_ROLE_DEFS : AWAY_ROLE_DEFS;
+      const roleLines = defs.map(d => {
+        const nm = (g.roles[d.key] || "").trim();
+        return `<div style="margin-top:2px;"><strong>${d.label}:</strong> `
+          + (nm ? esc(nm) : `<span style="color:var(--red);font-weight:700;">Avoin</span>`)
+          + `</div>`;
+      }).join("");
+      const fieldLine = g.kentta ? `<div>${esc(g.kentta)}</div>` : "";
+      return {
+        time: g.klo,
+        endTime: addMin(g.klo, 60),
+        icon: "⚾",
+        color: "ic-red",
+        title: esc(g.joukkueet),
+        sub: fieldLine + roleLines,
+      };
+    });
   // Säilytä yleiset "Otteluita"-merkinnät (alustava aikataulu) oikeiden otteluiden rinnalla
   const baseEvents = baseDay.events;
   const mergedEvents = baseEvents.concat(gameEvents)
