@@ -852,7 +852,8 @@ async function fetchGames() {
     console.warn("Otteluiden haku epäonnistui:", err);
     gamesError = true; // säilytä mahdollinen vanha data, näytä silti virhe jos tyhjä
   }
-  if (getCurrentTab() === TALKOOT_TAB) renderTalkootTab();
+  const ct = getCurrentTab();
+  if (ct === TALKOOT_TAB || (ct >= 0 && ct < DAYS.length)) renderEvents();
 }
 
 async function postTalkoo(id, role, name) {
@@ -1062,6 +1063,13 @@ function renderTalkootTab() {
     });
 }
 
+function addMin(hhmm, add) {
+  const t = toMin(hhmm);
+  if (t == null) return null;
+  const x = Math.min(t + add, 23 * 60 + 59);
+  return String(Math.floor(x / 60)).padStart(2, "0") + ":" + String(x % 60).padStart(2, "0");
+}
+
 function renderEvents() {
   const tab = getCurrentTab();
   if (tab === ADDR_TAB) { renderAddressesTab(); return; }
@@ -1070,7 +1078,28 @@ function renderEvents() {
   if (tab === WEATHER_TAB) { renderWeatherTab(); return; }
   if (tab === TALKOOT_TAB) { renderTalkootTab(); return; }
 
-  const day = DAYS[tab];
+  const baseDay = DAYS[tab];
+
+  // Yhdistä Sheetin ottelut tämän päivän aikajanalle
+  const gameEvents = (gamesData || [])
+    .filter(g => gameDayInfo(g.pvm).key === baseDay.key)
+    .map(g => ({
+      time: g.klo,
+      endTime: addMin(g.klo, 60),
+      icon: "⚾",
+      color: "ic-red",
+      title: esc(g.joukkueet),
+      sub: g.kentta ? esc(g.kentta) : "",
+    }));
+  // Säilytä yleiset "Otteluita"-merkinnät (alustava aikataulu) oikeiden otteluiden rinnalla
+  const baseEvents = baseDay.events;
+  const mergedEvents = baseEvents.concat(gameEvents)
+    .sort((a, b) => {
+      const ta = toMin(a.time), tb = toMin(b.time);
+      return (ta == null ? 1e9 : ta) - (tb == null ? 1e9 : tb);
+    });
+  const day = Object.assign({}, baseDay, { events: mergedEvents });
+
   const statuses = computeStatuses(day);
   const nextIdx = findNextEvent(day, statuses);
 
@@ -1125,7 +1154,8 @@ fetchGames();   // hae ottelut ja talkoot heti
 setInterval(fetchWeather, 60 * 60 * 1000); // päivitä sää tunnin välein
 setInterval(() => {
   // päivitä ottelut/talkoot säännöllisesti, mutta ei kesken kirjaamisen
-  if (getCurrentTab() === TALKOOT_TAB && !editing && !saving) fetchGames();
+  const t = getCurrentTab();
+  if (!editing && !saving && (t === TALKOOT_TAB || (t >= 0 && t < DAYS.length))) fetchGames();
 }, 45000);
 setInterval(() => {
   if (!INFO_TABS.includes(getCurrentTab())) render();
