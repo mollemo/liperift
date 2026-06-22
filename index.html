@@ -351,6 +351,7 @@ const AWAY_ROLE_DEFS = [
 
 let gamesData = null;   // null = ei vielä haettu, [] = haettu mutta tyhjä
 let gamesError = false; // true = viimeisin haku epäonnistui
+let gamesLocked = false; // true = talkoolista lukittu (ei muutoksia)
 let editing = null;     // { id, role, value } kun nimeä kirjataan/vaihdetaan
 let saving = null;      // { id, role } kun tallennus on käynnissä
 
@@ -847,6 +848,7 @@ async function fetchGames() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     gamesData = Array.isArray(data.games) ? data.games : [];
+    gamesLocked = !!data.locked;
     gamesError = false;
   } catch (err) {
     console.warn("Otteluiden haku epäonnistui:", err);
@@ -857,6 +859,7 @@ async function fetchGames() {
 }
 
 async function postTalkoo(id, role, name) {
+  if (gamesLocked) { await fetchGames(); return; }
   saving = { id, role };
   if (getCurrentTab() === TALKOOT_TAB) renderTalkootTab();
   try {
@@ -879,6 +882,7 @@ function findGameRole(id, role) {
 }
 
 function startTalkooEdit(id, role) {
+  if (gamesLocked) return;
   const fr = findGameRole(id, role);
   editing = { id: id, role: role, value: fr ? fr.name : "" };
   renderTalkootTab();
@@ -925,7 +929,9 @@ function roleRowHtml(game, def) {
   const isSaving = saving && saving.id === id && saving.role === key;
 
   let body;
-  if (isSaving) {
+  if (gamesLocked) {
+    body = name ? esc(name) : `<span style="color:var(--sub);">Avoin</span>`;
+  } else if (isSaving) {
     body = `<span style="color:var(--sub);">⏳ Tallennetaan…</span>`;
   } else if (isEditing) {
     body = `<input id="talkooInput" type="text" maxlength="60" value="${esc(editing.value)}" placeholder="Nimesi"
@@ -977,9 +983,18 @@ function renderTalkootTab() {
       : "background:var(--now-bg);border:2px solid var(--now-border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:#A87800;";
     summary.innerHTML = ok
       ? "✅ Kaikki ottelutalkoot täytetty — kiitos!<br><span style=\"font-size:12px;font-weight:600;color:var(--sub);\">🚗 Kyydit sovitaan valmentajan kanssa.</span>"
-      : `🙋 Avoimia ottelutalkoita: ${openShifts}<br><span style="font-size:12px;font-weight:600;">Ilmoittaudu painamalla "Ilmoittaudu" pelin kohdalla. 🚗 Kyydit sovitaan valmentajan kanssa.</span>`;
+      : `🙋 Avoimia ottelutalkoita: ${openShifts}` + (gamesLocked
+          ? `<br><span style="font-size:12px;font-weight:600;color:var(--sub);">🚗 Kyydit sovitaan valmentajan kanssa.</span>`
+          : `<br><span style="font-size:12px;font-weight:600;">Ilmoittaudu painamalla "Ilmoittaudu" pelin kohdalla. 🚗 Kyydit sovitaan valmentajan kanssa.</span>`);
   }
   list.appendChild(summary);
+
+  if (gamesLocked) {
+    const lk = document.createElement("div");
+    lk.style.cssText = "background:#EDEEF3;border:2px solid var(--navy);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:var(--navy);";
+    lk.innerHTML = "🔒 Talkoolista on lukittu. Vuoroihin ei voi enää tehdä muutoksia sivustolla.";
+    list.appendChild(lk);
+  }
 
   // ── Ottelut ryhmiteltynä päivittäin ──
   if (gamesData && gamesData.length) {
