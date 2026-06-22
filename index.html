@@ -333,96 +333,41 @@ const CONTACTS = [
   { role: "Seuran puheenjohtaja", name: "Juha Kröger",         email: "juha.kroger@kostamokoti.fi",       phone: "0505532156" },
 ];
 
-// ─── TALKOOT JA KYYDIT ───────────────────────────────────────────────────
-// Kootut talkoovuorot ja kyydit koko viikolta.
-// - Tavallinen talkoovuoro: ei type-kenttää, roles = roolit ja nimet
-// - Kyyti: type: "kyyti", roles = autot ja kuljettajat
-//   Kuljettajan kohdalle voi merkitä myös paikkamäärän, esim. "Maija (4 paikkaa)"
-// Tyhjä person ("") näkyy listassa punaisena "Avoin"-merkintänä.
-const TALKOOT = [
-  // ── Ma 27.7 ──
-  { key: "2026-07-27", time: "12:00", type: "kyyti", title: "Kyydit otteluihin", place: "Majoituskoululta kentälle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  { key: "2026-07-27", time: "12:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
-      { role: "Kirjuri",     person: "" },
-      { role: "Takatuomari", person: "" },
-  ]},
-  { key: "2026-07-27", time: "17:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
-      { role: "Kirjuri",     person: "" },
-      { role: "Takatuomari", person: "" },
-  ]},
-  { key: "2026-07-27", time: "19:30", type: "kyyti", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  // ── Ti 28.7 ──
-  { key: "2026-07-28", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  { key: "2026-07-28", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
-      { role: "Kirjuri",     person: "" },
-      { role: "Takatuomari", person: "" },
-  ]},
-  { key: "2026-07-28", time: "12:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
-      { role: "Kirjuri",     person: "" },
-      { role: "Takatuomari", person: "" },
-  ]},
-  { key: "2026-07-28", time: "19:30", type: "kyyti", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  // ── Ke 29.7 ──
-  { key: "2026-07-29", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  { key: "2026-07-29", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
-      { role: "Kirjuri",     person: "" },
-      { role: "Takatuomari", person: "" },
-  ]},
-  { key: "2026-07-29", time: "19:30", type: "kyyti", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  // ── To 30.7 ──
-  { key: "2026-07-30", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  { key: "2026-07-30", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
-      { role: "Kirjuri",     person: "" },
-      { role: "Takatuomari", person: "" },
-  ]},
-  { key: "2026-07-30", time: "18:00", type: "kyyti", title: "Kyydit toimintailtaan", place: "Pärnävaaran liikunta-alueelle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  // ── Pe 31.7 ──
-  { key: "2026-07-31", time: "08:00", type: "kyyti", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
-  { key: "2026-07-31", time: "08:30", title: "Ottelu (joukkueet täydentyvät)", place: "", roles: [
-      { role: "Kirjuri",     person: "" },
-      { role: "Takatuomari", person: "" },
-  ]},
-  { key: "2026-07-31", time: "14:30", type: "kyyti", title: "Kotiinlähtökyydit", place: "Kentältä kotiin", roles: [
-      { role: "Auto 1", person: "" },
-      { role: "Auto 2", person: "" },
-      { role: "Auto 3", person: "" },
-  ]},
+// ─── OTTELUT JA TALKOOT (Google Sheet) ───────────────────────────────────
+// Ottelut ja niiden talkoovuorot luetaan Google Sheetistä Apps Script -rajapinnan
+// kautta. Nimen kirjaaminen lähetetään takaisin samaan rajapintaan.
+const TALKOOT_API = "https://script.google.com/macros/s/AKfycbwsmcQ-472jNKIG654uT5Yf4uP-QGm2XZwohSrapivlrqp5FIa2-wFksyjIE3OZw_DH/exec";
+
+// Roolit pelistatuksen mukaan. avain = sama tunnus kuin Sheetissä/Apps Scriptissä.
+const HOME_ROLE_DEFS = [
+  { key: "kirjuri",         label: "Kirjuri" },
+  { key: "takarajatuomari", label: "Takarajatuomari" },
+  { key: "tuomari2",        label: "2. tuomari" },
+];
+const AWAY_ROLE_DEFS = [
+  { key: "tuomari3",   label: "3. tuomari" },
+  { key: "tulostaulu", label: "Tulostaulu" },
+];
+
+let gamesData = null;   // null = ei vielä haettu, [] = haettu mutta tyhjä
+let gamesError = false; // true = viimeisin haku epäonnistui
+let editing = null;     // { id, role, value } kun nimeä kirjataan/vaihdetaan
+let saving = null;      // { id, role } kun tallennus on käynnissä
+
+// ─── KYYDIT ──────────────────────────────────────────────────────────────
+// Kyydit pidetään toistaiseksi erillään (siirretään Sheetiin myöhemmin).
+// Ilmoittautuminen näihin tapahtuu valmentajan kautta.
+const KYYDIT = [
+  { key: "2026-07-27", time: "12:00", title: "Kyydit otteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-27", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-28", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-28", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-29", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-29", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-30", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-30", time: "18:00", title: "Kyydit toimintailtaan", place: "Pärnävaaran liikunta-alueelle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-31", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-31", time: "14:30", title: "Kotiinlähtökyydit", place: "Kentältä kotiin", roles: ["Auto 1","Auto 2","Auto 3"] },
 ];
 
 // ─── RUOKALISTA (päiväkohtainen) ─────────────────────────────────────────
@@ -669,7 +614,7 @@ function renderTabs() {
   const tb = document.createElement("button");
   tb.className = "info-tab" + (cur === TALKOOT_TAB ? " active" : "");
   tb.innerHTML = "🙋 Talkoot";
-  tb.onclick = () => { selectedTab = TALKOOT_TAB; render(); };
+  tb.onclick = () => { selectedTab = TALKOOT_TAB; render(); fetchGames(); };
   infoCont.appendChild(tb);
 
   const mb = document.createElement("button");
@@ -868,57 +813,234 @@ function renderWeatherTab() {
   });
 }
 
+// ─── OTTELUDATAN HAKU JA TALLENNUS ───────────────────────────────────────
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// Yhdistää ottelun pvm:n (esim. "28.7.") leiripäivään DAYS-listalta.
+function gameDayInfo(pvm) {
+  const norm = String(pvm).trim().replace(/\s/g, "").replace(/\.+$/, "");
+  for (let i = 0; i < DAYS.length; i++) {
+    if (DAYS[i].date.replace(/\.+$/, "") === norm) {
+      return { idx: i, key: DAYS[i].key, label: DAYS[i].label, date: DAYS[i].date };
+    }
+  }
+  return { idx: 99, key: null, label: "", date: String(pvm) };
+}
+
+async function fetchGames() {
+  try {
+    const res = await fetch(TALKOOT_API, { method: "GET" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    gamesData = Array.isArray(data.games) ? data.games : [];
+    gamesError = false;
+  } catch (err) {
+    console.warn("Otteluiden haku epäonnistui:", err);
+    gamesError = true; // säilytä mahdollinen vanha data, näytä silti virhe jos tyhjä
+  }
+  if (getCurrentTab() === TALKOOT_TAB) renderTalkootTab();
+}
+
+async function postTalkoo(id, role, name) {
+  saving = { id, role };
+  if (getCurrentTab() === TALKOOT_TAB) renderTalkootTab();
+  try {
+    await fetch(TALKOOT_API, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // välttää CORS-esitarkistuksen
+      body: JSON.stringify({ id: id, role: role, name: name }),
+    });
+  } catch (err) {
+    console.warn("Tallennus epäonnistui:", err);
+  }
+  await new Promise(r => setTimeout(r, 400));
+  saving = null;
+  await fetchGames();
+}
+
+function findGameRole(id, role) {
+  const g = (gamesData || []).find(x => x.id === id);
+  return g ? { game: g, name: g.roles[role] || "" } : null;
+}
+
+function startTalkooEdit(id, role) {
+  const fr = findGameRole(id, role);
+  editing = { id: id, role: role, value: fr ? fr.name : "" };
+  renderTalkootTab();
+  setTimeout(() => {
+    const el = document.getElementById("talkooInput");
+    if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} }
+  }, 0);
+}
+
+function cancelTalkooEdit() { editing = null; renderTalkootTab(); }
+
+async function saveTalkooEdit() {
+  const el = document.getElementById("talkooInput");
+  if (!el || !editing) return;
+  const newName = el.value.trim();
+  if (!newName) { cancelTalkooEdit(); return; }
+  const fr = findGameRole(editing.id, editing.role);
+  const oldName = fr ? fr.name : "";
+  if (oldName && oldName !== newName &&
+      !confirm("Korvataanko " + oldName + " nimellä " + newName + "?")) return;
+  const id = editing.id, role = editing.role;
+  editing = null;
+  await postTalkoo(id, role, newName);
+}
+
+async function removeTalkooName(id, role) {
+  const fr = findGameRole(id, role);
+  const name = fr ? fr.name : "";
+  if (name && !confirm("Poistetaanko " + name + " tästä vuorosta?")) return;
+  editing = null;
+  await postTalkoo(id, role, "");
+}
+
+function btnStyle(filled) {
+  return filled
+    ? "font-size:12px;font-weight:700;color:#fff;background:var(--red);border:1px solid var(--red);border-radius:8px;padding:3px 11px;margin-left:8px;cursor:pointer;"
+    : "font-size:12px;font-weight:600;color:var(--red);background:#fff;border:1px solid var(--red);border-radius:8px;padding:3px 10px;margin-left:6px;cursor:pointer;";
+}
+
+function roleRowHtml(game, def) {
+  const id = game.id, key = def.key;
+  const name = game.roles[key] || "";
+  const isEditing = editing && editing.id === id && editing.role === key;
+  const isSaving = saving && saving.id === id && saving.role === key;
+
+  let body;
+  if (isSaving) {
+    body = `<span style="color:var(--sub);">⏳ Tallennetaan…</span>`;
+  } else if (isEditing) {
+    body = `<input id="talkooInput" type="text" maxlength="60" value="${esc(editing.value)}" placeholder="Nimesi"
+              style="font-size:14px;padding:4px 8px;border:1px solid var(--red);border-radius:8px;width:140px;"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();saveTalkooEdit();}if(event.key==='Escape'){cancelTalkooEdit();}">
+            <button style="${btnStyle(true)}" onclick="saveTalkooEdit()">Tallenna</button>
+            <button style="${btnStyle(false)}" onclick="cancelTalkooEdit()">Peruuta</button>`;
+  } else if (name) {
+    body = `${esc(name)}
+            <button style="${btnStyle(false)}" onclick="startTalkooEdit('${id}','${key}')">Vaihda</button>
+            <button style="${btnStyle(false)}" onclick="removeTalkooName('${id}','${key}')">Poista</button>`;
+  } else {
+    body = `<span style="color:var(--red);font-weight:700;">❗ Avoin</span>
+            <button style="${btnStyle(true)}" onclick="startTalkooEdit('${id}','${key}')">Ilmoittaudu</button>`;
+  }
+  return `<div style="margin-top:6px;display:flex;align-items:center;flex-wrap:wrap;gap:2px 0;">
+            <strong style="margin-right:6px;">${def.label}:</strong> ${body}
+          </div>`;
+}
+
 function renderTalkootTab() {
   document.getElementById("nextBanner").classList.remove("visible");
   document.getElementById("weatherCard").classList.remove("visible");
   const list = document.getElementById("eventList");
   list.innerHTML = "";
+  const tk = todayKey();
 
-  const wdNames = ["Su","Ma","Ti","Ke","To","Pe","La"];
+  // ── Avoimet vuorot ──
+  let openShifts = 0;
+  (gamesData || []).forEach(g => {
+    (g.home ? HOME_ROLE_DEFS : AWAY_ROLE_DEFS).forEach(def => {
+      if (!(g.roles[def.key] || "").trim()) openShifts++;
+    });
+  });
+  const openRides = KYYDIT.reduce((a, k) => a + k.roles.length, 0);
 
-  // Yhteenveto avoimista vuoroista ja kyydeistä
-  let openShifts = 0, openRides = 0;
-  TALKOOT.forEach(t => t.roles.forEach(r => {
-    if (!r.person) { if (t.type === "kyyti") openRides++; else openShifts++; }
-  }));
-  const totalOpen = openShifts + openRides;
-
+  // ── Yhteenvetopalkki ──
   const summary = document.createElement("div");
-  summary.style.cssText = totalOpen > 0
-    ? "background:var(--now-bg);border:2px solid var(--now-border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:#A87800;"
-    : "background:#E8F5EC;border:2px solid var(--green);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:var(--green);";
-  summary.innerHTML = totalOpen > 0
-    ? `🙋 Avoimia talkoovuoroja: ${openShifts} &nbsp;·&nbsp; 🚗 Avoimia kyytejä: ${openRides}<br><span style="font-size:12px;font-weight:600;">Ilmoittaudu valmentajalle!</span>`
-    : "✅ Kaikki talkoovuorot ja kyydit täytetty — kiitos!";
+  if (gamesData === null && gamesError) {
+    summary.style.cssText = "background:#FCEBEB;border:2px solid var(--red);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13.5px;font-weight:600;color:var(--darkred);";
+    summary.innerHTML = "⚠️ Otteluiden haku ei juuri nyt onnistu. Yritetään uudelleen automaattisesti — tarkista verkkoyhteys tai päivitä sivu.";
+  } else if (gamesData === null) {
+    summary.style.cssText = "background:var(--now-bg);border:2px solid var(--now-border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:600;color:#A87800;";
+    summary.innerHTML = "Haetaan otteluita…";
+  } else {
+    const ok = openShifts === 0;
+    summary.style.cssText = ok
+      ? "background:#E8F5EC;border:2px solid var(--green);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:var(--green);"
+      : "background:var(--now-bg);border:2px solid var(--now-border);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px;font-weight:700;color:#A87800;";
+    summary.innerHTML = ok
+      ? "✅ Kaikki ottelutalkoot täytetty — kiitos!<br><span style=\"font-size:12px;font-weight:600;color:var(--sub);\">🚗 Kyydit sovitaan valmentajan kanssa.</span>"
+      : `🙋 Avoimia ottelutalkoita: ${openShifts}<br><span style="font-size:12px;font-weight:600;">Ilmoittaudu painamalla "Ilmoittaudu" pelin kohdalla. 🚗 Kyydit sovitaan valmentajan kanssa.</span>`;
+  }
   list.appendChild(summary);
 
-  // Ryhmittele päivittäin
-  const tk = todayKey();
+  // ── Ottelut ryhmiteltynä päivittäin ──
+  if (gamesData && gamesData.length) {
+    const groups = {};
+    gamesData.forEach(g => {
+      const di = gameDayInfo(g.pvm);
+      const k = di.key || ("x" + di.date);
+      (groups[k] = groups[k] || { di: di, games: [] }).games.push(g);
+    });
+    Object.keys(groups)
+      .sort((a, b) => groups[a].di.idx - groups[b].di.idx || (groups[a].di.date > groups[b].di.date ? 1 : -1))
+      .forEach(k => {
+        const grp = groups[k];
+        const hdr = document.createElement("div");
+        hdr.style.cssText = "font-size:16px;font-weight:700;color:var(--red);margin:14px 4px 8px;";
+        const dayLabel = grp.di.label ? `${grp.di.label} ${grp.di.date}` : grp.di.date;
+        hdr.innerHTML = dayLabel
+          + (grp.di.key === tk ? ' <span style="background:var(--now-border);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">Tänään</span>' : "");
+        list.appendChild(hdr);
+
+        grp.games
+          .slice()
+          .sort((a, b) => (a.klo || "").localeCompare(b.klo || "") || (a.joukkueet || "").localeCompare(b.joukkueet || ""))
+          .forEach(g => {
+            const defs = g.home ? HOME_ROLE_DEFS : AWAY_ROLE_DEFS;
+            const rolesHtml = defs.map(def => roleRowHtml(g, def)).join("");
+            const meta = [g.klo, g.kentta].filter(Boolean).join(" · ");
+            const div = document.createElement("div");
+            div.className = "event";
+            div.innerHTML = `
+              <div class="ev-icon ic-red">⚾</div>
+              <div class="ev-body">
+                ${meta ? `<div class="ev-time">${esc(meta)}</div>` : ""}
+                <div class="ev-title">${esc(g.joukkueet)}</div>
+                <div class="ev-sub">${rolesHtml}</div>
+              </div>`;
+            list.appendChild(div);
+          });
+      });
+  } else if (gamesData && gamesData.length === 0) {
+    const p = document.createElement("p");
+    p.style.cssText = "font-size:13.5px;color:var(--sub);margin:4px 4px 10px;";
+    p.innerHTML = "<em>Otteluita ei ole vielä lisätty taulukkoon. Ne ilmestyvät tähän automaattisesti.</em>";
+    list.appendChild(p);
+  }
+
+  // ── Kyydit (erillinen osio) ──
+  const kyytiHdr = document.createElement("div");
+  kyytiHdr.style.cssText = "font-size:16px;font-weight:700;color:var(--navy);margin:20px 4px 8px;";
+  kyytiHdr.innerHTML = "🚗 Kyydit";
+  list.appendChild(kyytiHdr);
+
+  const wdNames = ["Su","Ma","Ti","Ke","To","Pe","La"];
   let lastKey = null;
-  TALKOOT
-    .slice()
+  KYYDIT.slice()
     .sort((a, b) => a.key === b.key ? a.time.localeCompare(b.time) : a.key.localeCompare(b.key))
     .forEach(t => {
       if (t.key !== lastKey) {
         lastKey = t.key;
         const d = new Date(t.key + "T12:00:00");
         const hdr = document.createElement("div");
-        hdr.style.cssText = "font-size:16px;font-weight:700;color:var(--red);margin:14px 4px 8px;";
+        hdr.style.cssText = "font-size:13px;font-weight:700;color:var(--sub);margin:10px 4px 4px;";
         hdr.innerHTML = `${wdNames[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`
           + (t.key === tk ? ' <span style="background:var(--now-border);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">Tänään</span>' : "");
         list.appendChild(hdr);
       }
-
-      const rolesHtml = t.roles.map(r => r.person
-        ? `<div style="margin-top:3px;"><strong>${r.role}:</strong> ${r.person}</div>`
-        : `<div style="margin-top:3px;"><strong>${r.role}:</strong> <span style="color:var(--red);font-weight:700;">❗ Avoin — ilmoittaudu!</span></div>`
+      const rolesHtml = t.roles.map(r =>
+        `<div style="margin-top:3px;"><strong>${r}:</strong> <span style="color:var(--red);font-weight:700;">❗ Avoin — ilmoittaudu valmentajalle</span></div>`
       ).join("");
-
-      const isRide = t.type === "kyyti";
       const div = document.createElement("div");
       div.className = "event";
       div.innerHTML = `
-        <div class="ev-icon ${isRide ? "ic-blue" : "ic-red"}">${isRide ? "🚗" : "🙋"}</div>
+        <div class="ev-icon ic-blue">🚗</div>
         <div class="ev-body">
           <div class="ev-time">${t.time}</div>
           <div class="ev-title">${t.title}</div>
@@ -988,7 +1110,12 @@ function render() {
 
 render();
 fetchWeather(); // hae sää heti sivun avautuessa
+fetchGames();   // hae ottelut ja talkoot heti
 setInterval(fetchWeather, 60 * 60 * 1000); // päivitä sää tunnin välein
+setInterval(() => {
+  // päivitä ottelut/talkoot säännöllisesti, mutta ei kesken kirjaamisen
+  if (getCurrentTab() === TALKOOT_TAB && !editing && !saving) fetchGames();
+}, 45000);
 setInterval(() => {
   if (!INFO_TABS.includes(getCurrentTab())) render();
   else renderClock();
