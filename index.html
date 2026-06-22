@@ -820,19 +820,30 @@ function esc(s) {
 }
 
 // Yhdistää ottelun pvm:n (esim. "28.7.") leiripäivään DAYS-listalta.
+// Muuntaa pvm:n siistiksi muotoon "d.m" — hyväksyy sekä "29.7." / "29.7" että
+// raa'an JS Date -merkkijonon (esim. "Wed Jul 29 2026 03:00:00 GMT+0300 ...").
+function normalizePvm(pvm) {
+  let s = String(pvm).trim();
+  let m = s.match(/^(\d{1,2})\.(\d{1,2})\.?$/);
+  if (m) return m[1] + "." + m[2];
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) return d.getDate() + "." + (d.getMonth() + 1);
+  return s;
+}
+
 function gameDayInfo(pvm) {
-  const norm = String(pvm).trim().replace(/\s/g, "").replace(/\.+$/, "");
+  const norm = normalizePvm(pvm);
   for (let i = 0; i < DAYS.length; i++) {
     if (DAYS[i].date.replace(/\.+$/, "") === norm) {
       return { idx: i, key: DAYS[i].key, label: DAYS[i].label, date: DAYS[i].date };
     }
   }
-  return { idx: 99, key: null, label: "", date: String(pvm) };
+  return { idx: 99, key: null, label: "", date: norm };
 }
 
 async function fetchGames() {
   try {
-    const res = await fetch(TALKOOT_API, { method: "GET" });
+    const res = await fetch(TALKOOT_API + "?t=" + Date.now(), { method: "GET", cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     gamesData = Array.isArray(data.games) ? data.games : [];
