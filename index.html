@@ -311,6 +311,33 @@ function P(key) {
   return mapLink(p.name + " (" + p.addr + ")", p.name + ", " + p.addr);
 }
 
+// ─── PELIKENTÄT ──────────────────────────────────────────────────────────
+// Kenttien nimet vastaavat Sheetin Kenttä-sarakkeen pudotusvalikon arvoja,
+// jotta ottelun kenttä osaa hakea oikean osoitteen ja pinnan.
+const FIELDS = [
+  { name: "1. Viinijärven Pallokenttä",     surface: "hiekkatekonurmi",          addr: "Kirkkotie 2, 83400 Viinijärvi" },
+  { name: "2. Viinijärven Pallokenttä",     surface: "hiekkatekonurmi",          addr: "Kirkkotie 2, 83400 Viinijärvi" },
+  { name: "3. Viinijärven Pallokenttä",     surface: "hiekkakenttä",             addr: "Kirkkotie 2, 83400 Viinijärvi" },
+  { name: "4. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 83100 Liperi" },
+  { name: "5. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 83100 Liperi" },
+  { name: "6. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 83100 Liperi" },
+  { name: "7. Honkamontun kenttä",          surface: "hiekkakenttä",             addr: "Honkatie 8, 80400 Liperi" },
+  { name: "8. Honkamontun kenttä",          surface: "hiekkakenttä",             addr: "Honkatie 8, 80400 Liperi" },
+  { name: "9. Jyrin pesäpallokenttä",       surface: "hiekkatekonurmi",          addr: "Tykistöntie 3, 80400 Ylämylly" },
+  { name: "10. Jyrin pesäpallokenttä",      surface: "hiekkatekonurmi",          addr: "Tykistöntie 3, 80400 Ylämylly" },
+  { name: "11. Jyrin kenttä",               surface: "kumirouhe, ei piikkareita", addr: "Tykistöntie 3, 80400 Ylämylly" },
+  { name: "12. Jyrin kenttä",               surface: "kumirouhe, ei piikkareita", addr: "Tykistöntie 3, 80400 Ylämylly" },
+  { name: "13. Jyrin kenttä",               surface: "kumirouhe, ei piikkareita", addr: "Tykistöntie 3, 80400 Ylämylly" },
+  { name: "14. Paloaukean parkour-kenttä",  surface: "tekonurmi, ei piikkareita", addr: "Mottitie 5, 80400 Ylämylly" },
+  { name: "15. Patteriston yläkoulun kenttä", surface: "hiekkakenttä",           addr: "Laavupolku 2, 80400 Ylämylly" },
+  { name: "16. Patteriston yläkoulun kenttä", surface: "hiekkakenttä",           addr: "Laavupolku 2, 80400 Ylämylly" },
+];
+
+function fieldByName(name) {
+  const n = String(name == null ? "" : name).trim();
+  return FIELDS.find(f => f.name === n) || null;
+}
+
 // ─── YHTEYSTIEDOT ────────────────────────────────────────────────────────
 const CONTACTS = [
   { role: "Leirinjohtaja",        name: "Marko Huhtanen",      email: "marko.huhtanen@viu.fi",            phone: "0401722954" },
@@ -653,7 +680,6 @@ function renderAddressesTab() {
     { icon: "🏠", color: "ic-darkred", title: "Majoituskoulut", places: ["patteristo", "paloaukea", "jyri", "paloaukeaPk", "lautasuoPk", "liperinKoulu"] },
     { icon: "🏃", color: "ic-red",     title: "Toimintailta", places: ["parnavaara"] },
     { icon: "🍴", color: "ic-green",   title: "Ruokailu", places: ["ruokailu"] },
-    { icon: "⚾", color: "ic-red",     title: "Pelikentät", places: ["kentta1"] },
   ];
 
   groups.forEach(g => {
@@ -668,6 +694,23 @@ function renderAddressesTab() {
       </div>`;
     list.appendChild(div);
   });
+
+  // ── Pelikentät (nimi karttalinkkinä, alle osoite ja pinta) ──
+  const fieldsHtml = FIELDS.map(f => `
+    <div style="margin-bottom:12px;">
+      <div style="font-weight:600;">${mapLink(f.name, f.name + ", " + f.addr)}</div>
+      <div style="font-size:12.5px;color:var(--sub);margin-top:1px;">${f.addr}</div>
+      <div style="font-size:12.5px;color:var(--sub);">Pinta: ${f.surface}</div>
+    </div>`).join("");
+  const fdiv = document.createElement("div");
+  fdiv.className = "addr-card";
+  fdiv.innerHTML = `
+    <div class="ev-icon ic-red">⚾</div>
+    <div class="ev-body">
+      <h3>Pelikentät</h3>
+      <p>${fieldsHtml}</p>
+    </div>`;
+  list.appendChild(fdiv);
 }
 
 function renderMenuTab() {
