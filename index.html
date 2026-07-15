@@ -492,42 +492,42 @@ const MENU = [
 //   accent: true = punainen otsikko
 const DAYS = [
   { key: "2026-07-27", label: "Ma", date: "27.7", events: [
-      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Mahdollisuus aamupalaan", loc: "jyrinRuokala", sub: "Varattava erikseen · Jyrin ruokalassa<br>Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Mahdollisuus aamupalaan", loc: "jyrinRuokala", sub: "Varattava erikseen · Jyrin ruokalassa<br>Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." + "<br>" + P("jyrinRuokala") },
       { time: "09:00", endTime: "12:00", icon: "ℹ️", color: "ic-red", title: "Saapuminen leirille", loc: "patteristo", sub: "" },
-      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Lihapyörykät, kastike, peruna, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Lihapyörykät, kastike, peruna, salaattikomponentit, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "13:30", endTime: "14:00", icon: "🎉", color: "ic-red", title: "Leirin avajaiset", accent: true, loc: "patteristo", sub: "" },
-      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Kahdenkalankeitto, riisipiirakka, munavoi, banaani, ruisleipä, levite, juomat." },
-      { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Kahdenkalankeitto, riisipiirakka, munavoi, banaani, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "21:00", endTime: "22:00", icon: "☕", color: "ic-navy", title: "Valmentajien vetäjäkahvit + info", loc: "patteristo", sub: P("patteristo") },
       { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", loc: "patteristo", sub: "" },
   ]},
   { key: "2026-07-28", label: "Ti", date: "28.7", events: [
-      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Broilerinakkikastike, tummariisi, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Jauheliha-makaronilaatikko, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Broilerinakkikastike, tummariisi, salaattikomponentit, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Jauheliha-makaronilaatikko, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "20:00", endTime: "21:00", icon: "⚾", color: "ic-darkred", title: "Ottelu Tuomarit – Valmentajat", loc: "9. Jyrin pesäpallokenttä", sub: fieldInfo("9. Jyrin pesäpallokenttä", { noPesisTV: true }) },
       { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", loc: "patteristo", sub: "" },
   ]},
   { key: "2026-07-29", label: "Ke", date: "29.7", events: [
-      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Pinaatti-raejuustonapit, kermaviilikastike, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "15:30", endTime: "17:30", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Broilerikiusaus, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Pinaatti-raejuustonapit, kermaviilikastike, perunasose, salaattikomponentit, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "15:30", endTime: "17:30", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Broilerikiusaus, salaattikomponentit, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "18:00", endTime: "19:30", icon: "🎉", color: "ic-red", title: "Leiriottelu Viinijärvi–Ikaalinen", accent: true, loc: "1. Viinijärven Pallokenttä", sub: fieldInfo("1. Viinijärven Pallokenttä", { noPesisTV: true }) },
-      { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", loc: "patteristo", sub: "" },
   ]},
   { key: "2026-07-30", label: "To", date: "30.7", events: [
-      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Jauhelihakastike, minispagetti, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Riisivelli, mansikkarouhe, grahamlihapiirakka, ruisleipä, levite, juomat." },
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Jauhelihakastike, minispagetti, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", loc: "ruokailu", sub: "Riisivelli, mansikkarouhe, grahamlihapiirakka, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "18:30", endTime: "19:30", icon: "🏃", color: "ic-red", title: "Toimintailta", loc: "parnavaara", sub: P("parnavaara") },
-      { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", loc: "ruokailu", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", loc: "patteristo", sub: "" },
   ]},
   { key: "2026-07-31", label: "Pe", date: "31.7", events: [
-      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Broilerinugetit, currymajoneesi, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
+      { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", loc: "ruokailu", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." + "<br>" + P("ruokailu") },
+      { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", loc: "ruokailu", sub: "Broilerinugetit, currymajoneesi, perunasose, salaattikomponentit, ruisleipä, levite, juomat." + "<br>" + P("ruokailu") },
       { time: "11:00", endTime: "13:00", icon: "🏠", color: "ic-darkred", title: "Majoitustilojen luovutukset alkavat", accent: true, loc: "patteristo", sub: "" },
   ]},
 ];
@@ -787,7 +787,7 @@ function renderMenuTab() {
         <div class="ev-body">
           ${m.time ? `<div class="ev-time">${m.time}</div>` : ""}
           <div class="ev-title">${m.name}</div>
-          <div class="ev-sub">${m.text}${m.note ? "<br><strong>" + m.note + "</strong>" : ""}<br>${m.place ? mapLink(m.place.name + " (" + m.place.addr + ")", m.place.name + ", " + m.place.addr) : P("ruokailu")}</div>
+          <div class="ev-sub">${m.text}${m.note ? "<br><strong>" + m.note + "</strong>" : ""}</div>
         </div>`;
       list.appendChild(div);
     });
