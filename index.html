@@ -1255,12 +1255,6 @@ function renderTalkootTab() {
   kyytiHdr.innerHTML = "🚗 Kyydit";
   list.appendChild(kyytiHdr);
 
-  // ── Kyytitarjonnan ilmoittautuminen (visuaalinen testiversio) ──
-  const testTag = document.createElement("div");
-  testTag.style.cssText = "font-size:11px;font-weight:700;color:#A87800;background:#FFF6E5;border:1px solid #F0D090;border-radius:8px;padding:4px 8px;margin:0 4px 10px;display:inline-block;";
-  testTag.innerHTML = "🧪 Testiversio — ei vielä tallennu pysyvästi";
-  list.appendChild(testTag);
-
   const kyytiCard = document.createElement("div");
   kyytiCard.className = "addr-card";
   kyytiCard.style.cssText = "display:block;margin-bottom:14px;";
