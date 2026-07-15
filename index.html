@@ -293,17 +293,11 @@ function mapLink(label, address) {
 
 // ─── OSOITTEET ───────────────────────────────────────────────────────────
 const PLACES = {
-  // Majoituspaikat
+  // Majoituspaikka
   patteristo:  { name: "Ylämyllyn koulu, Patteriston yksikkö", addr: "Laavupolku 2, 80400 Ylämylly" },
-  paloaukea:   { name: "Ylämyllyn koulu, Paloaukean yksikkö",  addr: "Patteristontie 12 e, 80400 Ylämylly" },
-  jyri:        { name: "Ylämyllyn koulu, Jyrin yksikkö",       addr: "Patteristontie 12 a, 80400 Ylämylly" },
-  paloaukeaPk: { name: "Paloaukean päiväkoti",                 addr: "Patteristontie 12 D, 80400 Ylämylly" },
-  lautasuoPk:  { name: "Lautasuon päiväkoti",                  addr: "Ylämyllyntie 52, 80400 Ylämylly" },
-  liperinKoulu:{ name: "Liperin koulu",                        addr: "Koulukuja 2, 83100 Liperi" },
   // Muut paikat
   parnavaara:  { name: "Pärnävaaran liikunta-alue",    addr: "Pärnävaarantie, 80400 Ylämylly" },
-  ruokailu:    { name: "Ruokailupaikka (TÄYDENNÄ)",    addr: "Osoite, 83100 Liperi" },
-  kentta1:     { name: "Pelikenttä 1 (TÄYDENNÄ)",      addr: "Osoite, 83100 Liperi" },
+  ruokailu:    { name: "Ylämyllyn koulu, Patteriston yksikkö", addr: "Laavupolku 2, 80400 Ylämylly" },
 };
 
 function P(key) {
@@ -315,27 +309,39 @@ function P(key) {
 // Kenttien nimet vastaavat Sheetin Kenttä-sarakkeen pudotusvalikon arvoja,
 // jotta ottelun kenttä osaa hakea oikean osoitteen ja pinnan.
 const FIELDS = [
-  { name: "1. Viinijärven Pallokenttä",     surface: "hiekkatekonurmi",          addr: "Kirkkotie 2, 83400 Viinijärvi" },
-  { name: "2. Viinijärven Pallokenttä",     surface: "hiekkatekonurmi",          addr: "Kirkkotie 2, 83400 Viinijärvi" },
-  { name: "3. Viinijärven Pallokenttä",     surface: "hiekkakenttä",             addr: "Kirkkotie 2, 83400 Viinijärvi" },
-  { name: "4. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 83100 Liperi" },
-  { name: "5. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 83100 Liperi" },
-  { name: "6. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 83100 Liperi" },
-  { name: "7. Honkamontun kenttä",          surface: "hiekkakenttä",             addr: "Honkatie 8, 80400 Liperi" },
-  { name: "8. Honkamontun kenttä",          surface: "hiekkakenttä",             addr: "Honkatie 8, 80400 Liperi" },
-  { name: "9. Jyrin pesäpallokenttä",       surface: "hiekkatekonurmi",          addr: "Tykistöntie 3, 80400 Ylämylly" },
-  { name: "10. Jyrin pesäpallokenttä",      surface: "hiekkatekonurmi",          addr: "Tykistöntie 3, 80400 Ylämylly" },
-  { name: "11. Jyrin kenttä",               surface: "kumirouhe, ei piikkareita", addr: "Tykistöntie 3, 80400 Ylämylly" },
-  { name: "12. Jyrin kenttä",               surface: "kumirouhe, ei piikkareita", addr: "Tykistöntie 3, 80400 Ylämylly" },
-  { name: "13. Jyrin kenttä",               surface: "kumirouhe, ei piikkareita", addr: "Tykistöntie 3, 80400 Ylämylly" },
-  { name: "14. Paloaukean parkour-kenttä",  surface: "tekonurmi, ei piikkareita", addr: "Mottitie 5, 80400 Ylämylly" },
-  { name: "15. Patteriston yläkoulun kenttä", surface: "hiekkakenttä",           addr: "Laavupolku 2, 80400 Ylämylly" },
-  { name: "16. Patteriston yläkoulun kenttä", surface: "hiekkakenttä",           addr: "Laavupolku 2, 80400 Ylämylly" },
+  { name: "1. Viinijärven Pallokenttä",     surface: "hiekkatekonurmi",          addr: "Kirkkotie 2, 83400 Viinijärvi", wc: "Pukukopeilla", parking: "Pukukoppien takana", kiosk: true, pesisTV: true },
+  { name: "2. Viinijärven Pallokenttä",     surface: "hiekkatekonurmi",          addr: "Kirkkotie 2, 83400 Viinijärvi", wc: "Pukukopeilla", parking: "Pukukoppien takana", kiosk: true, pesisTV: true },
+  { name: "3. Viinijärven Pallokenttä",     surface: "hiekkakenttä",             addr: "Kirkkotie 2, 83400 Viinijärvi", wc: "Pukukopeilla", parking: "Pukukoppien takana", kiosk: true, pesisTV: false },
+  { name: "4. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 80400 Liperi", wc: "Jääkiekkokaukalon pukukopit", parking: "Koulun parkkipaikka ja kentän pääty", kiosk: true, pesisTV: true },
+  { name: "5. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 80400 Liperi", wc: "Jääkiekkokaukalon pukukopit", parking: "Koulun parkkipaikka ja kentän pääty", kiosk: true, pesisTV: true },
+  { name: "6. Liperin kirkonkylän kenttä",  surface: "hiekkakenttä",             addr: "Koulutie 2, 80400 Liperi", wc: "Jääkiekkokaukalon pukukopit", parking: "Koulun parkkipaikka ja kentän pääty", kiosk: true, pesisTV: true },
+  { name: "7. Honkamontun kenttä",          surface: "hiekkakenttä",             addr: "Honkatie 8, 80400 Ylämylly", wc: "Erillinen rakennus kentänlaidalla", parking: "Kadun varressa n. 15 autolle. Kenttä on alempana \"montussa\", jonne joukkueen busseilla mahdollisuus ajaa.", kiosk: true, pesisTV: true },
+  { name: "8. Honkamontun kenttä",          surface: "hiekkakenttä",             addr: "Honkatie 8, 80400 Ylämylly", wc: "Erillinen rakennus kentänlaidalla", parking: "Kadun varressa n. 15 autolle. Kenttä on alempana \"montussa\", jonne joukkueen busseilla mahdollisuus ajaa.", kiosk: true, pesisTV: true },
+  { name: "9. Jyrin pesäpallokenttä",       surface: "hiekkatekonurmi",          addr: "Tykistötie 3, 80400 Jyrinkylä", wc: "Jalkapallokentän huoltorakennuksessa, Patteristontie 12 e, 80400 Liperi", parking: "Kentän päädyssä", kiosk: true, pesisTV: true },
+  { name: "10. Jyrin pesäpallokenttä",      surface: "hiekkatekonurmi",          addr: "Tykistötie 3, 80400 Jyrinkylä", wc: "Jalkapallokentän huoltorakennuksessa, Patteristontie 12 e, 80400 Liperi", parking: "Kentän päädyssä", kiosk: true, pesisTV: true },
+  { name: "11. Jyrin kenttä",               surface: "tekonurmi, kumirouhe (ei saa pelata piikkareilla)", addr: "Tykistötie 3, 80400 Jyrinkylä", wc: "Jalkapallokentän huoltorakennuksessa, Patteristontie 12 e, 80400 Liperi", parking: "Kentän päädyssä", kiosk: true, pesisTV: true },
+  { name: "12. Jyrin kenttä",               surface: "tekonurmi, kumirouhe (ei saa pelata piikkareilla)", addr: "Tykistötie 3, 80400 Jyrinkylä", wc: "Jalkapallokentän huoltorakennuksessa, Patteristontie 12 e, 80400 Liperi", parking: "Kentän päädyssä", kiosk: true, pesisTV: true },
+  { name: "13. Jyrin kenttä",               surface: "tekonurmi, kumirouhe (ei saa pelata piikkareilla)", addr: "Tykistötie 3, 80400 Jyrinkylä", wc: "Jalkapallokentän huoltorakennuksessa, Patteristontie 12 e, 80400 Liperi", parking: "Kentän päädyssä", kiosk: true, pesisTV: true },
+  { name: "14. Monitoimikenttä (Paloaukea)", surface: "kumirouhekenttä (ei saa pelata piikkareilla)", addr: "Patteristontie 12 e, 80400 Jyrinkylä", wc: "Paloaukean koululla, Patteristontie 12 e, 80400 Liperi (n. 150 m päässä)", parking: "Paloaukean koululla, Patteristontie 12 e, 80400 Liperi (n. 150 m päässä)" },
+  { name: "15. Patteriston hiekkakenttä", surface: "hiekkakenttä",           addr: "Laavupolku 4–6, 80400 Jyrinkylä", wc: "Jääkiekkokaukalon pukukopit", parking: "Koulun parkkipaikat", kiosk: "Kioski ja kanslia koululla" },
+  { name: "16. Patteriston yläkoulun kenttä", surface: "hiekkakenttä",           addr: "Laavupolku 4–6, 80400 Jyrinkylä", wc: "Jääkiekkokaukalon pukukopit", parking: "Koulun parkkipaikat", kiosk: "Kioski ja kanslia koululla" },
 ];
 
 function fieldByName(name) {
   const n = String(name == null ? "" : name).trim();
   return FIELDS.find(f => f.name === n) || null;
+}
+
+function fieldInfo(name, opts) {
+  const f = fieldByName(name);
+  if (!f) return "";
+  const showPesis = !(opts && opts.noPesisTV);
+  const pesisBadge = (f.pesisTV && showPesis) ? ' <span style="background:#e2e007;color:#1a1a2e;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;vertical-align:middle;">PESIS TV</span>' : "";
+  return `${mapLink(f.name, f.addr)}${pesisBadge}`
+    + `<br>Pinta: ${f.surface}`
+    + (f.wc ? `<br>Wc ja vesipiste: ${f.wc}` : "")
+    + (f.parking ? `<br>Parkkipaikka: ${f.parking}` : "")
+    + (f.kiosk ? `<br>${f.kiosk === true ? "Kioski" : f.kiosk}` : "");
 }
 
 // ─── YHTEYSTIEDOT ────────────────────────────────────────────────────────
@@ -401,10 +407,10 @@ const KYYDIT = [
 // ─── RUOKALISTA (päiväkohtainen) ─────────────────────────────────────────
 const MENU = [
   { day: "Su 26.7", key: "2026-07-26", meals: [
-      { name: "Iltapala", icon: "🥪", time: "Klo 19–21", text: "Jyrin ruokalassa. Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
+      { name: "Iltapala", icon: "🥪", time: "Klo 19–21", text: "Jyrin ruokalassa. Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat.", place: { name: "Jyrin ruokala", addr: "Patteristontie 12 a, 80400 Ylämylly" } },
   ]},
   { day: "Ma 27.7", key: "2026-07-27", meals: [
-      { name: "Aamupala", icon: "☀️", time: "Klo 7–9", text: "Jyrin ruokalassa. Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
+      { name: "Aamupala", icon: "☀️", time: "Klo 7–9", text: "Jyrin ruokalassa. Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat.", place: { name: "Jyrin ruokala", addr: "Patteristontie 12 a, 80400 Ylämylly" } },
       { name: "Lounas", icon: "🍴", time: "Klo 11–13", text: "Lihapyörykät, kastike, peruna, salaattikomponentit, ruisleipä, levite, juomat." },
       { name: "Päivällinen", icon: "🍽️", time: "Klo 16–18", text: "Kahdenkalankeitto, riisipiirakka, munavoi, banaani, ruisleipä, levite, juomat." },
       { name: "Iltapala", icon: "🥪", time: "Klo 19–21", text: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
@@ -445,39 +451,30 @@ const DAYS = [
       { time: "09:00", endTime: "12:00", icon: "ℹ️", color: "ic-red", title: "Saapuminen leirille", sub: "" },
       { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Lihapyörykät, kastike, peruna, salaattikomponentit, ruisleipä, levite, juomat." },
       { time: "13:30", endTime: "14:00", icon: "🎉", color: "ic-red", title: "Leirin avajaiset", accent: true, sub: "" },
-      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Kahdenkalankeitto, riisipiirakka, munavoi, banaani, ruisleipä, levite, juomat." },
-      { time: "17:30", endTime: "19:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
       { time: "21:00", endTime: "22:00", icon: "☕", color: "ic-navy", title: "Valmentajien vetäjäkahvit + info", sub: P("patteristo") },
       { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", sub: "" },
   ]},
   { key: "2026-07-28", label: "Ti", date: "28.7", events: [
       { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Broilerinakkikastike, tummariisi, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Jauheliha-makaronilaatikko, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "17:30", endTime: "19:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "19:00", endTime: "21:00", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
-      { time: "19:30", endTime: "20:30", icon: "⚾", color: "ic-darkred", title: "Ottelu Tuomarit – Valmentajat", sub: "Patteriston majoituskoulun kentällä — " + P("patteristo") },
+      { time: "20:00", endTime: "21:00", icon: "⚾", color: "ic-darkred", title: "Ottelu Tuomarit – Valmentajat", sub: fieldInfo("9. Jyrin pesäpallokenttä", { noPesisTV: true }) },
       { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", sub: "" },
   ]},
   { key: "2026-07-29", label: "Ke", date: "29.7", events: [
       { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Pinaatti-raejuustonapit, kermaviilikastike, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "15:30", endTime: "17:30", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Broilerikiusaus, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "18:00", endTime: "19:30", icon: "🎉", color: "ic-red", title: "Leirin juhlaottelu NYP", accent: true, sub: "" },
+      { time: "18:00", endTime: "19:30", icon: "🎉", color: "ic-red", title: "Leiriottelu Viinijärvi–Ikaalinen", accent: true, sub: fieldInfo("1. Viinijärven Pallokenttä", { noPesisTV: true }) },
       { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
       { time: "22:00", endTime: "23:59", icon: "🌙", color: "ic-navy", title: "Hiljaisuus", sub: "" },
   ]},
   { key: "2026-07-30", label: "To", date: "30.7", events: [
       { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Jauhelihakastike, minispagetti, tomaattiketsuppi, salaattikomponentit, ruisleipä, levite, juomat." },
-      { time: "12:30", endTime: "16:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "16:00", endTime: "18:00", icon: "🍽️", color: "ic-green", title: "Päivällinen", sub: "Riisivelli, mansikkarouhe, grahamlihapiirakka, ruisleipä, levite, juomat." },
       { time: "18:30", endTime: "19:30", icon: "🏃", color: "ic-red", title: "Toimintailta", sub: P("parnavaara") },
       { time: "19:30", endTime: "21:30", icon: "🥪", color: "ic-navy", title: "Iltapala", sub: "Jogurtti, täysjyvämuro, juusto, kalkkunaleike, tuorekasvis, sämpylä, ruisleipä, levite, juomat." },
@@ -485,10 +482,8 @@ const DAYS = [
   ]},
   { key: "2026-07-31", label: "Pe", date: "31.7", events: [
       { time: "06:45", endTime: "09:00", icon: "☀️", color: "ic-green", title: "Aamupala", sub: "Hiutalepuuro, mehukeitto, kananmuna, juusto, tuorekasvis, leivät, levite, juomat." },
-      { time: "08:30", endTime: "11:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
       { time: "11:00", endTime: "13:00", icon: "🍴", color: "ic-green", title: "Lounas", sub: "Broilerinugetit, currymajoneesi, perunasose, salaattikomponentit, ruisleipä, levite, juomat." },
       { time: "11:00", endTime: "13:00", icon: "🏠", color: "ic-darkred", title: "Majoitustilojen luovutukset alkavat", accent: true, sub: "" },
-      { time: "12:30", endTime: "14:30", icon: "⚾", color: "ic-red", title: "Otteluita", sub: "" },
   ]},
 ];
 
@@ -677,7 +672,7 @@ function renderAddressesTab() {
 
   // Ylimääräiset majoituspaikat poistetaan myöhemmin, kun oma koulu varmistuu
   const groups = [
-    { icon: "🏠", color: "ic-darkred", title: "Majoituskoulut", places: ["patteristo", "paloaukea", "jyri", "paloaukeaPk", "lautasuoPk", "liperinKoulu"] },
+    { icon: "🏠", color: "ic-darkred", title: "Majoituskoulu", places: ["patteristo"] },
     { icon: "🏃", color: "ic-red",     title: "Toimintailta", places: ["parnavaara"] },
     { icon: "🍴", color: "ic-green",   title: "Ruokailu", places: ["ruokailu"] },
   ];
@@ -698,9 +693,12 @@ function renderAddressesTab() {
   // ── Pelikentät (nimi karttalinkkinä, alle osoite ja pinta) ──
   const fieldsHtml = FIELDS.map(f => `
     <div style="margin-bottom:12px;">
-      <div style="font-weight:600;">${mapLink(f.name, f.addr)}</div>
+      <div style="font-weight:600;">${mapLink(f.name, f.addr)}${f.pesisTV ? ' <span style="background:#e2e007;color:#1a1a2e;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;vertical-align:middle;">PESIS TV</span>' : ""}</div>
       <div style="font-size:12.5px;color:var(--sub);margin-top:1px;">${f.addr}</div>
       <div style="font-size:12.5px;color:var(--sub);">Pinta: ${f.surface}</div>
+      ${f.wc ? `<div style="font-size:12.5px;color:var(--sub);">Wc ja vesipiste: ${f.wc}</div>` : ""}
+      ${f.parking ? `<div style="font-size:12.5px;color:var(--sub);">Parkkipaikka: ${f.parking}</div>` : ""}
+      ${f.kiosk ? `<div style="font-size:12.5px;color:var(--sub);">${f.kiosk === true ? "Kioski" : f.kiosk}</div>` : ""}
     </div>`).join("");
   const fdiv = document.createElement("div");
   fdiv.className = "addr-card";
@@ -744,7 +742,7 @@ function renderMenuTab() {
         <div class="ev-body">
           ${m.time ? `<div class="ev-time">${m.time}</div>` : ""}
           <div class="ev-title">${m.name}</div>
-          <div class="ev-sub">${m.text}${m.note ? "<br><strong>" + m.note + "</strong>" : ""}</div>
+          <div class="ev-sub">${m.text}${m.note ? "<br><strong>" + m.note + "</strong>" : ""}<br>${m.place ? mapLink(m.place.name + " (" + m.place.addr + ")", m.place.name + ", " + m.place.addr) : P("ruokailu")}</div>
         </div>`;
       list.appendChild(div);
     });
@@ -1159,7 +1157,7 @@ function renderEvents() {
         sub: fieldLine + roleLines,
       };
     });
-  // Säilytä yleiset "Otteluita"-merkinnät (alustava aikataulu) oikeiden otteluiden rinnalla
+  // Yhdistä päivän kiinteät tapahtumat ja Sheetistä haetut oikeat ottelut
   const baseEvents = baseDay.events;
   const mergedEvents = baseEvents.concat(gameEvents)
     .sort((a, b) => {
