@@ -317,11 +317,11 @@ function haversineKm(a, b) {
 }
 
 function formatDistance(km) {
-  if (km <= 2.0) {
+  if (km <= 1.5) {
     const m = Math.round(km * 1000 / 50) * 50; // pyöristys lähimpään 50 m
-    return `<span style="color:var(--sub);">🚶 ~${m} m linnuntietä — kävelymatka</span>`;
+    return { html: `<span style="color:var(--sub);">🚶 ~${m} m linnuntietä — kävelymatka</span>`, needsCar: false };
   }
-  return `<span style="color:var(--sub);">🚗 ~${km.toFixed(1)} km linnuntietä — autolla</span>`;
+  return { html: `<span style="color:var(--sub);">🚗 ~${km.toFixed(1)} km linnuntietä — autolla</span>`, needsCar: true };
 }
 
 // ─── OSOITTEET ───────────────────────────────────────────────────────────
@@ -433,21 +433,71 @@ let gamesLocked = false; // true = talkoolista lukittu (ei muutoksia)
 let editing = null;     // { id, role, value } kun nimeä kirjataan/vaihdetaan
 let saving = null;      // { id, role } kun tallennus on käynnissä
 
+// ─── KYYTITARJONTA-LOMAKE (VISUAALINEN TESTIVERSIO) ───────────────────────
+// Ei vielä yhteydessä Sheetiin — tiedot säilyvät vain selaimen muistissa
+// tämän istunnon ajan, jotta ulkoasua voi kokeilla ennen taustajärjestelmää.
+let kyytiIlmoitukset = [];
+let kyytiFormOpen = false;
+
 // ─── KYYDIT ──────────────────────────────────────────────────────────────
 // Kyydit pidetään toistaiseksi erillään (siirretään Sheetiin myöhemmin).
 // Ilmoittautuminen näihin tapahtuu valmentajan kautta.
+// roles: [{ role: "Auto 1", driver: "Kuljettajan nimi", passengers: "Kyytiin menijöiden nimet" }]
+// Tyhjä driver ("") näkyy "Avoin"-merkintänä. day-näkymässä näytetään automaattisesti
+// silloin kun kahden peräkkäisen tapahtuman etäisyys on yli 1,5 km ja matka ajetaan autolla.
 const KYYDIT = [
-  { key: "2026-07-27", time: "12:00", title: "Kyydit otteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-27", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-28", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-28", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-29", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-29", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-30", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-30", time: "18:00", title: "Kyydit toimintailtaan", place: "Pärnävaaran liikunta-alueelle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-31", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: ["Auto 1","Auto 2","Auto 3"] },
-  { key: "2026-07-31", time: "14:30", title: "Kotiinlähtökyydit", place: "Kentältä kotiin", roles: ["Auto 1","Auto 2","Auto 3"] },
+  { key: "2026-07-27", time: "12:00", title: "Kyydit otteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-27", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-28", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-28", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-29", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-29", time: "19:30", title: "Paluukyydit majoitukselle", place: "Kentältä majoituskoululle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-30", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-30", time: "18:00", title: "Kyydit toimintailtaan", place: "Pärnävaaran liikunta-alueelle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-31", time: "08:00", title: "Kyydit aamuotteluihin", place: "Majoituskoululta kentälle", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
+  { key: "2026-07-31", time: "14:30", title: "Kotiinlähtökyydit", place: "Kentältä kotiin", roles: [
+      { role: "Auto 1", driver: "", passengers: "" },
+      { role: "Auto 2", driver: "", passengers: "" },
+      { role: "Auto 3", driver: "", passengers: "" },
+  ]},
 ];
+
 
 // ─── RUOKALISTA (päiväkohtainen) ─────────────────────────────────────────
 const MENU = [
@@ -980,6 +1030,26 @@ function startTalkooEdit(id, role) {
 
 function cancelTalkooEdit() { editing = null; renderTalkootTab(); }
 
+function submitKyytiIlmoitus() {
+  const nameEl = document.getElementById("kyytiNameInput");
+  const seatsEl = document.getElementById("kyytiSeatsInput");
+  const name = nameEl ? nameEl.value.trim() : "";
+  if (!name) { nameEl && nameEl.focus(); return; }
+  const days = DAYS.filter(d => {
+    const cb = document.getElementById("kyytiDay_" + d.key);
+    return cb && cb.checked;
+  }).map(d => `${d.label} ${d.date}`);
+  const seats = seatsEl ? parseInt(seatsEl.value, 10) || 1 : 1;
+  kyytiIlmoitukset.push({ name, days, seats });
+  kyytiFormOpen = false;
+  renderTalkootTab();
+}
+
+function removeKyytiIlmoitus(idx) {
+  kyytiIlmoitukset.splice(idx, 1);
+  renderTalkootTab();
+}
+
 async function saveTalkooEdit() {
   const el = document.getElementById("talkooInput");
   if (!el || !editing) return;
@@ -1133,6 +1203,76 @@ function renderTalkootTab() {
   kyytiHdr.innerHTML = "🚗 Kyydit";
   list.appendChild(kyytiHdr);
 
+  // ── Kyytitarjonnan ilmoittautuminen (visuaalinen testiversio) ──
+  const testTag = document.createElement("div");
+  testTag.style.cssText = "font-size:11px;font-weight:700;color:#A87800;background:#FFF6E5;border:1px solid #F0D090;border-radius:8px;padding:4px 8px;margin:0 4px 10px;display:inline-block;";
+  testTag.innerHTML = "🧪 Testiversio — ei vielä tallennu pysyvästi";
+  list.appendChild(testTag);
+
+  const kyytiCard = document.createElement("div");
+  kyytiCard.className = "addr-card";
+  kyytiCard.style.cssText = "display:block;margin-bottom:14px;";
+  const dayChecks = DAYS.map(d =>
+    `<label style="display:inline-flex;align-items:center;gap:3px;font-size:12.5px;margin:3px 10px 3px 0;">
+       <input type="checkbox" id="kyytiDay_${d.key}" style="width:15px;height:15px;">${d.label} ${d.date}
+     </label>`
+  ).join("");
+
+  if (kyytiFormOpen) {
+    kyytiCard.innerHTML = `
+      <div class="ev-icon ic-blue">🚗</div>
+      <div class="ev-body">
+        <h3>Ilmoita kyytitarjonta</h3>
+        <div style="margin-top:6px;">
+          <input id="kyytiNameInput" type="text" maxlength="60" placeholder="Nimesi"
+            style="font-size:14px;padding:6px 10px;border:1px solid var(--red);border-radius:8px;width:100%;max-width:220px;box-sizing:border-box;">
+        </div>
+        <div style="margin-top:8px;font-size:12.5px;font-weight:600;color:var(--sub);">Läsnäolopäivät:</div>
+        <div style="margin-top:2px;">${dayChecks}</div>
+        <div style="margin-top:8px;">
+          <label style="font-size:12.5px;font-weight:600;color:var(--sub);">Vapaita paikkoja autossa:</label><br>
+          <input id="kyytiSeatsInput" type="number" min="1" max="8" value="3"
+            style="font-size:14px;padding:6px 10px;border:1px solid var(--red);border-radius:8px;width:70px;margin-top:3px;">
+        </div>
+        <div style="margin-top:10px;">
+          <button style="${btnStyle(true)}" onclick="submitKyytiIlmoitus()">Ilmoittaudu</button>
+          <button style="${btnStyle(false)}" onclick="kyytiFormOpen=false;renderTalkootTab();">Peruuta</button>
+        </div>
+      </div>`;
+  } else {
+    kyytiCard.innerHTML = `
+      <div class="ev-icon ic-blue">🚗</div>
+      <div class="ev-body">
+        <h3>Onko sinulla auto käytössä?</h3>
+        <p style="margin:2px 0 0;">Ilmoita läsnäolopäiväsi ja montako paikkaa autossasi on vapaana — näin kyytijaot on helpompi tehdä otteluohjelman valmistuttua.</p>
+        <button style="${btnStyle(true)};margin-top:8px;" onclick="kyytiFormOpen=true;renderTalkootTab();">Ilmoita kyytitarjonta</button>
+      </div>`;
+  }
+  list.appendChild(kyytiCard);
+
+  if (kyytiIlmoitukset.length) {
+    const subHdr = document.createElement("div");
+    subHdr.style.cssText = "font-size:13px;font-weight:700;color:var(--sub);margin:6px 4px 6px;";
+    subHdr.innerHTML = "Ilmoittautuneet kuljettajat";
+    list.appendChild(subHdr);
+
+    kyytiIlmoitukset.forEach((k, idx) => {
+      const div = document.createElement("div");
+      div.className = "event";
+      div.innerHTML = `
+        <div class="ev-icon ic-blue">🚗</div>
+        <div class="ev-body">
+          <div class="ev-title">${esc(k.name)}</div>
+          <div class="ev-sub">
+            Paikalla: ${k.days.map(esc).join(", ")}<br>
+            Vapaita paikkoja: ${k.seats}
+          </div>
+          <button style="${btnStyle(false)}" onclick="removeKyytiIlmoitus(${idx})">Poista</button>
+        </div>`;
+      list.appendChild(div);
+    });
+  }
+
   const wdNames = ["Su","Ma","Ti","Ke","To","Pe","La"];
   let lastKey = null;
   KYYDIT.slice()
@@ -1148,7 +1288,11 @@ function renderTalkootTab() {
         list.appendChild(hdr);
       }
       const rolesHtml = t.roles.map(r =>
-        `<div style="margin-top:3px;"><strong>${r}:</strong> <span style="color:var(--red);font-weight:700;">❗ Avoin — ilmoittaudu valmentajalle</span></div>`
+        `<div style="margin-top:3px;"><strong>${r.role}:</strong> ` +
+        (r.driver
+          ? `${esc(r.driver)}${r.passengers ? ` <span style="color:var(--sub);">(kyytiläiset: ${esc(r.passengers)})</span>` : ""}`
+          : `<span style="color:var(--red);font-weight:700;">❗ Avoin — ilmoittaudu valmentajalle</span>`)
+        + `</div>`
       ).join("");
       const div = document.createElement("div");
       div.className = "event";
@@ -1268,7 +1412,8 @@ async function updateDistanceEl(el, fromAddr, toAddr) {
   if (!el.isConnected) return; // näkymä on jo vaihtunut
   if (!a || !b) { el.innerHTML = ""; return; }
   const km = haversineKm(a, b);
-  el.innerHTML = formatDistance(km);
+  const dist = formatDistance(km);
+  el.innerHTML = dist.html + (dist.needsCar ? `<div style="margin-top:2px;color:var(--sub);">🚗 Kyyti tarvitaan</div>` : "");
 }
 
 function renderClock() {
