@@ -416,6 +416,10 @@ const CONTACTS = [
 // kautta. Nimen kirjaaminen lähetetään takaisin samaan rajapintaan.
 const TALKOOT_API = "https://script.google.com/macros/s/AKfycbwsmcQ-472jNKIG654uT5Yf4uP-QGm2XZwohSrapivlrqp5FIa2-wFksyjIE3OZw_DH/exec";
 
+// ─── KYYTITARJONTA (oma Google Sheet + Apps Script -rajapinta) ───────────
+// TÄYTÄ TÄHÄN oman Apps Script -julkaisun URL, kun olet ottanut Kyydit.gs:n käyttöön (ks. ohje alempana).
+const KYYTI_API = "TÄYTÄ_TÄHÄN_KYYTI_APPS_SCRIPT_URL";
+
 // Roolit pelistatuksen mukaan. avain = sama tunnus kuin Sheetissä/Apps Scriptissä.
 const HOME_ROLE_DEFS = [
   { key: "kirjuri",         label: "Kirjuri" },
@@ -433,11 +437,13 @@ let gamesLocked = false; // true = talkoolista lukittu (ei muutoksia)
 let editing = null;     // { id, role, value } kun nimeä kirjataan/vaihdetaan
 let saving = null;      // { id, role } kun tallennus on käynnissä
 
-// ─── KYYTITARJONTA-LOMAKE (VISUAALINEN TESTIVERSIO) ───────────────────────
-// Ei vielä yhteydessä Sheetiin — tiedot säilyvät vain selaimen muistissa
-// tämän istunnon ajan, jotta ulkoasua voi kokeilla ennen taustajärjestelmää.
-let kyytiIlmoitukset = [];
+// ─── KYYTITARJONTA-LOMAKE ──────────────────────────────────────────────
+// Tiedot haetaan/tallennetaan KYYTI_API:n kautta samalla periaatteella kuin ottelutalkoot.
+let kyytiData = null;    // null = ei vielä haettu, [] = haettu mutta tyhjä
+let kyytiError = false;
 let kyytiFormOpen = false;
+let kyytiSaving = false;
+let kyytiAssignments = []; // Excelissä käsin täytetyt kyytijaot (Auto 1 + kuljettaja + kyytiläiset)
 
 // ─── KYYDIT ──────────────────────────────────────────────────────────────
 // Kyydit pidetään toistaiseksi erillään (siirretään Sheetiin myöhemmin).
@@ -732,7 +738,7 @@ function renderTabs() {
   const tb = document.createElement("button");
   tb.className = "info-tab" + (cur === TALKOOT_TAB ? " active" : "");
   tb.innerHTML = "🙋 Talkoot";
-  tb.onclick = () => { selectedTab = TALKOOT_TAB; render(); fetchGames(); };
+  tb.onclick = () => { selectedTab = TALKOOT_TAB; render(); fetchGames(); fetchKyydit(); };
   infoCont.appendChild(tb);
 
   const mb = document.createElement("button");
@@ -1030,7 +1036,29 @@ function startTalkooEdit(id, role) {
 
 function cancelTalkooEdit() { editing = null; renderTalkootTab(); }
 
-function submitKyytiIlmoitus() {
+async function fetchKyydit() {
+  if (!KYYTI_API || KYYTI_API.indexOf("TÄYTÄ_TÄHÄN") === 0) return; // API-osoitetta ei ole vielä asetettu
+  try {
+    const res = await fetch(KYYTI_API + "?t=" + Date.now(), { method: "GET", cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    kyytiData = Array.isArray(data.entries) ? data.entries : [];
+    kyytiAssignments = Array.isArray(data.assignments) ? data.assignments : [];
+    kyytiError = false;
+  } catch (err) {
+    console.warn("Kyytitietojen haku epäonnistui:", err);
+    kyytiError = true;
+  }
+  const ct = getCurrentTab();
+  if (ct === TALKOOT_TAB || (ct >= 0 && ct < DAYS.length)) renderEvents();
+}
+
+// Palauttaa Excelissä täytetyt kyytijaot annetulle päivälle (esim. "27.7")
+function assignmentsForDay(dateStr) {
+  return kyytiAssignments.filter(a => a.day === dateStr);
+}
+
+async function submitKyytiIlmoitus() {
   const nameEl = document.getElementById("kyytiNameInput");
   const seatsEl = document.getElementById("kyytiSeatsInput");
   const name = nameEl ? nameEl.value.trim() : "";
@@ -1040,14 +1068,39 @@ function submitKyytiIlmoitus() {
     return cb && cb.checked;
   }).map(d => `${d.label} ${d.date}`);
   const seats = seatsEl ? parseInt(seatsEl.value, 10) || 1 : 1;
-  kyytiIlmoitukset.push({ name, days, seats });
-  kyytiFormOpen = false;
+  const id = "k" + Date.now() + Math.random().toString(36).slice(2, 7);
+
+  kyytiSaving = true;
   renderTalkootTab();
+  try {
+    await fetch(KYYTI_API, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // välttää CORS-esitarkistuksen
+      body: JSON.stringify({ action: "add", id, name, days, seats }),
+    });
+  } catch (err) {
+    console.warn("Kyytitarjonnan tallennus epäonnistui:", err);
+  }
+  kyytiSaving = false;
+  kyytiFormOpen = false;
+  await fetchKyydit();
 }
 
-function removeKyytiIlmoitus(idx) {
-  kyytiIlmoitukset.splice(idx, 1);
+async function removeKyytiIlmoitus(id) {
+  if (!confirm("Poistetaanko tämä kyytitarjonta?")) return;
+  kyytiSaving = true;
   renderTalkootTab();
+  try {
+    await fetch(KYYTI_API, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "remove", id }),
+    });
+  } catch (err) {
+    console.warn("Kyytitarjonnan poisto epäonnistui:", err);
+  }
+  kyytiSaving = false;
+  await fetchKyydit();
 }
 
 async function saveTalkooEdit() {
@@ -1122,7 +1175,6 @@ function renderTalkootTab() {
       if (!(g.roles[def.key] || "").trim()) openShifts++;
     });
   });
-  const openRides = KYYDIT.reduce((a, k) => a + k.roles.length, 0);
 
   // ── Yhteenvetopalkki ──
   const summary = document.createElement("div");
@@ -1224,19 +1276,22 @@ function renderTalkootTab() {
       <div class="ev-body">
         <h3>Ilmoita kyytitarjonta</h3>
         <div style="margin-top:6px;">
-          <input id="kyytiNameInput" type="text" maxlength="60" placeholder="Nimesi"
+          <input id="kyytiNameInput" type="text" maxlength="60" placeholder="Nimesi" ${kyytiSaving ? "disabled" : ""}
             style="font-size:14px;padding:6px 10px;border:1px solid var(--red);border-radius:8px;width:100%;max-width:220px;box-sizing:border-box;">
         </div>
         <div style="margin-top:8px;font-size:12.5px;font-weight:600;color:var(--sub);">Läsnäolopäivät:</div>
         <div style="margin-top:2px;">${dayChecks}</div>
         <div style="margin-top:8px;">
           <label style="font-size:12.5px;font-weight:600;color:var(--sub);">Vapaita paikkoja autossa:</label><br>
-          <input id="kyytiSeatsInput" type="number" min="1" max="8" value="3"
-            style="font-size:14px;padding:6px 10px;border:1px solid var(--red);border-radius:8px;width:70px;margin-top:3px;">
+          <div style="font-size:11.5px;color:var(--red);font-weight:600;margin-top:2px;">Älä laske tähän omaa lastasi mukaan — merkitse montako vapaata paikkaa autossa on pelaajille.</div>
+          <input id="kyytiSeatsInput" type="number" min="1" max="8" value="3" ${kyytiSaving ? "disabled" : ""}
+            style="font-size:14px;padding:6px 10px;border:1px solid var(--red);border-radius:8px;width:70px;margin-top:5px;">
         </div>
         <div style="margin-top:10px;">
-          <button style="${btnStyle(true)}" onclick="submitKyytiIlmoitus()">Ilmoittaudu</button>
-          <button style="${btnStyle(false)}" onclick="kyytiFormOpen=false;renderTalkootTab();">Peruuta</button>
+          ${kyytiSaving
+            ? `<span style="color:var(--sub);font-size:13px;">⏳ Tallennetaan…</span>`
+            : `<button style="${btnStyle(true)}" onclick="submitKyytiIlmoitus()">Ilmoittaudu</button>
+               <button style="${btnStyle(false)}" onclick="kyytiFormOpen=false;renderTalkootTab();">Peruuta</button>`}
         </div>
       </div>`;
   } else {
@@ -1250,13 +1305,23 @@ function renderTalkootTab() {
   }
   list.appendChild(kyytiCard);
 
-  if (kyytiIlmoitukset.length) {
+  if (!KYYTI_API || KYYTI_API.indexOf("TÄYTÄ_TÄHÄN") === 0) {
+    const note = document.createElement("p");
+    note.style.cssText = "font-size:12.5px;color:var(--sub);margin:4px 4px 10px;";
+    note.innerHTML = "<em>⚠️ Kyytitarjonnan tallennus ei ole vielä käytössä (API-osoitetta ei ole asetettu koodiin).</em>";
+    list.appendChild(note);
+  } else if (kyytiError) {
+    const note = document.createElement("p");
+    note.style.cssText = "font-size:12.5px;color:var(--darkred);margin:4px 4px 10px;font-weight:600;";
+    note.innerHTML = "⚠️ Kyytitietojen haku ei juuri nyt onnistu.";
+    list.appendChild(note);
+  } else if (kyytiData && kyytiData.length) {
     const subHdr = document.createElement("div");
     subHdr.style.cssText = "font-size:13px;font-weight:700;color:var(--sub);margin:6px 4px 6px;";
     subHdr.innerHTML = "Ilmoittautuneet kuljettajat";
     list.appendChild(subHdr);
 
-    kyytiIlmoitukset.forEach((k, idx) => {
+    kyytiData.forEach(k => {
       const div = document.createElement("div");
       div.className = "event";
       div.innerHTML = `
@@ -1264,34 +1329,36 @@ function renderTalkootTab() {
         <div class="ev-body">
           <div class="ev-title">${esc(k.name)}</div>
           <div class="ev-sub">
-            Paikalla: ${k.days.map(esc).join(", ")}<br>
-            Vapaita paikkoja: ${k.seats}
+            Paikalla: ${(k.days || []).map(esc).join(", ")}<br>
+            Vapaita paikkoja: ${esc(String(k.seats))}
           </div>
-          <button style="${btnStyle(false)}" onclick="removeKyytiIlmoitus(${idx})">Poista</button>
+          <button style="${btnStyle(false)}" onclick="removeKyytiIlmoitus('${k.id}')">Poista</button>
         </div>`;
       list.appendChild(div);
     });
   }
 
-  const wdNames = ["Su","Ma","Ti","Ke","To","Pe","La"];
-  let lastKey = null;
-  KYYDIT.slice()
-    .sort((a, b) => a.key === b.key ? a.time.localeCompare(b.time) : a.key.localeCompare(b.key))
-    .forEach(t => {
-      if (t.key !== lastKey) {
-        lastKey = t.key;
-        const d = new Date(t.key + "T12:00:00");
-        const hdr = document.createElement("div");
-        hdr.style.cssText = "font-size:13px;font-weight:700;color:var(--sub);margin:10px 4px 4px;";
-        hdr.innerHTML = `${wdNames[d.getDay()]} ${d.getDate()}.${d.getMonth()+1}.`
-          + (t.key === tk ? ' <span style="background:var(--now-border);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">Tänään</span>' : "");
-        list.appendChild(hdr);
-      }
-      const rolesHtml = t.roles.map(r =>
-        `<div style="margin-top:3px;"><strong>${r.role}:</strong> ` +
-        (r.driver
-          ? `${esc(r.driver)}${r.passengers ? ` <span style="color:var(--sub);">(kyytiläiset: ${esc(r.passengers)})</span>` : ""}`
-          : `<span style="color:var(--red);font-weight:700;">❗ Avoin — ilmoittaudu valmentajalle</span>`)
+  // ── Autokyydit (Excelissä käsin täytetyt kyytijaot, ryhmiteltynä päivittäin) ──
+  if (kyytiAssignments.length) {
+    const carHdr = document.createElement("div");
+    carHdr.style.cssText = "font-size:16px;font-weight:700;color:var(--navy);margin:20px 4px 8px;";
+    carHdr.innerHTML = "🚗 Autokyydit";
+    list.appendChild(carHdr);
+
+    DAYS.forEach(d => {
+      const cars = assignmentsForDay(d.date);
+      if (!cars.length) return;
+      const hdr = document.createElement("div");
+      hdr.style.cssText = "font-size:13px;font-weight:700;color:var(--sub);margin:10px 4px 4px;";
+      hdr.innerHTML = `${d.label} ${d.date}`
+        + (d.key === tk ? ' <span style="background:var(--now-border);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;vertical-align:middle;text-transform:uppercase;">Tänään</span>' : "");
+      list.appendChild(hdr);
+
+      const carsHtml = cars.map(c =>
+        `<div style="margin-top:3px;"><strong>${esc(c.car)}:</strong> ` +
+        (c.driver
+          ? `${esc(c.driver)}${c.passengers ? ` <span style="color:var(--sub);">(kyytiläiset: ${esc(c.passengers)})</span>` : ""}`
+          : `<span style="color:var(--red);font-weight:700;">Ei vielä sovittu</span>`)
         + `</div>`
       ).join("");
       const div = document.createElement("div");
@@ -1299,13 +1366,11 @@ function renderTalkootTab() {
       div.innerHTML = `
         <div class="ev-icon ic-blue">🚗</div>
         <div class="ev-body">
-          <div class="ev-time">${t.time}</div>
-          <div class="ev-title">${t.title}</div>
-          ${t.place ? `<div class="ev-sub">${t.place}</div>` : ""}
-          <div class="ev-sub">${rolesHtml}</div>
+          <div class="ev-sub">${carsHtml}</div>
         </div>`;
       list.appendChild(div);
     });
+  }
 }
 
 function addMin(hhmm, add) {
@@ -1391,7 +1456,7 @@ function renderEvents() {
       travel.dataset.toAddr = curLoc.addr;
       travel.innerHTML = "Lasketaan etäisyyttä…";
       list.appendChild(travel);
-      updateDistanceEl(travel, prevLoc.addr, curLoc.addr);
+      updateDistanceEl(travel, prevLoc.addr, curLoc.addr, day.date);
     }
 
     const div = document.createElement("div");
@@ -1407,13 +1472,29 @@ function renderEvents() {
   });
 }
 
-async function updateDistanceEl(el, fromAddr, toAddr) {
+async function updateDistanceEl(el, fromAddr, toAddr, dayDate) {
   const [a, b] = await Promise.all([geocodeAddress(fromAddr), geocodeAddress(toAddr)]);
   if (!el.isConnected) return; // näkymä on jo vaihtunut
   if (!a || !b) { el.innerHTML = ""; return; }
   const km = haversineKm(a, b);
   const dist = formatDistance(km);
-  el.innerHTML = dist.html + (dist.needsCar ? `<div style="margin-top:2px;color:var(--sub);">🚗 Kyyti tarvitaan</div>` : "");
+  let html = dist.html;
+
+  if (dist.needsCar) {
+    const cars = assignmentsForDay(dayDate);
+    if (cars.length) {
+      html += cars.map(c =>
+        `<div style="margin-top:2px;">🚗 <strong>${esc(c.car)}:</strong> ` +
+        (c.driver
+          ? `${esc(c.driver)}${c.passengers ? ` (kyytiläiset: ${esc(c.passengers)})` : ""}`
+          : `<span style="color:var(--red);font-weight:700;">Ei vielä sovittu</span>`)
+        + `</div>`
+      ).join("");
+    } else {
+      html += `<div style="margin-top:2px;color:var(--sub);">🚗 Kyyti tarvitaan</div>`;
+    }
+  }
+  el.innerHTML = html;
 }
 
 function renderClock() {
@@ -1433,11 +1514,13 @@ function render() {
 render();
 fetchWeather(); // hae sää heti sivun avautuessa
 fetchGames();   // hae ottelut ja talkoot heti
+fetchKyydit();  // hae kyytitarjonta heti
 setInterval(fetchWeather, 60 * 60 * 1000); // päivitä sää tunnin välein
 setInterval(() => {
   // päivitä ottelut/talkoot säännöllisesti, mutta ei kesken kirjaamisen
   const t = getCurrentTab();
   if (!editing && !saving && (t === TALKOOT_TAB || (t >= 0 && t < DAYS.length))) fetchGames();
+  if (t === TALKOOT_TAB && !kyytiFormOpen && !kyytiSaving) fetchKyydit();
 }, 45000);
 setInterval(() => {
   if (!INFO_TABS.includes(getCurrentTab())) render();
