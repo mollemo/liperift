@@ -1147,7 +1147,10 @@ function renderEvents() {
           + (nm ? esc(nm) : `<span style="color:var(--red);font-weight:700;">Avoin</span>`)
           + `</div>`;
       }).join("");
-      const fieldLine = g.kentta ? `<div>${esc(g.kentta)}</div>` : "";
+      const knownField = g.kentta ? fieldByName(g.kentta) : null;
+      const fieldLine = knownField
+        ? `<div style="margin-bottom:4px;">${fieldInfo(g.kentta)}</div>`
+        : (g.kentta ? `<div>${esc(g.kentta)}</div>` : "");
       return {
         time: g.klo,
         endTime: addMin(g.klo, 60),
