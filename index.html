@@ -291,9 +291,21 @@ function mapLink(label, address) {
   return `<a class="maplink" href="${url}" target="_blank" rel="noopener">📍 ${label}</a>`;
 }
 
-// ─── ETÄISYYDET (geokoodaus Nominatimilla, ilmainen, ei API-avainta) ──────
-// Nominatim sallii vain n. 1 pyynnön/sekunti — jonotetaan pyynnöt peräkkäin,
-// jottei moni samanaikainen haku (paljon otteluita/kenttiä) tuki palvelua.
+// ─── ETÄISYYDET (staattiset koordinaatit + Nominatim varalla uusille osoitteille) ─
+// Kaikkien tunnettujen osoitteiden koordinaatit on haettu valmiiksi, joten normaali
+// käyttö ei riipu ulkoisesta rajapinnasta eikä sen pyyntörajoituksista.
+const KNOWN_COORDS = {
+  "Laavupolku 2, 80400 Ylämylly": { lat: 62.6220594, lon: 29.5530098 },
+  "Pärnävaarantie, 80400 Ylämylly": { lat: 62.6400962, lon: 29.5693859 },
+  "Patteristontie 12 a, 80400 Ylämylly": { lat: 62.6292159, lon: 29.5520901 },
+  "Patteristontie 12 e, 80400 Jyrinkylä": { lat: 62.6304257, lon: 29.5466777 },
+  "Kirkkotie 2, 83400 Viinijärvi": { lat: 62.6451915, lon: 29.2342688 },
+  "Koulutie 2, 80400 Liperi": { lat: 62.5330546, lon: 29.3719277 },
+  "Honkatie 8, 80400 Ylämylly": { lat: 62.615138, lon: 29.516892 },
+  "Tykistötie 3, 80400 Jyrinkylä": { lat: 62.626146, lon: 29.551579 },
+  "Laavupolku 4–6, 80400 Jyrinkylä": { lat: 62.622127, lon: 29.5516432 },
+};
+
 const geoCache = {}; // osoite -> {lat, lon} | null (haku epäonnistui) | undefined (ei vielä haettu)
 const geoQueue = [];
 let geoQueueRunning = false;
@@ -301,6 +313,7 @@ let geoQueueRunning = false;
 function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
 function geocodeAddress(addr) {
+  if (KNOWN_COORDS[addr]) return Promise.resolve(KNOWN_COORDS[addr]);
   if (geoCache[addr] !== undefined) return Promise.resolve(geoCache[addr]);
   return new Promise(resolve => {
     geoQueue.push({ addr, resolve });
@@ -323,7 +336,7 @@ async function processGeoQueue() {
       geoCache[addr] = null;
     }
     resolve(geoCache[addr]);
-    if (geoQueue.length) await sleep(1100); // kunnioita ~1 pyyntö/sekunti -rajaa
+    if (geoQueue.length) await sleep(1100); // kunnioita ~1 pyyntö/sekunti -rajaa (vain tuntemattomille osoitteille)
   }
   geoQueueRunning = false;
 }
