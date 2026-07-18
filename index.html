@@ -292,19 +292,40 @@ function mapLink(label, address) {
 }
 
 // ─── ETÄISYYDET (geokoodaus Nominatimilla, ilmainen, ei API-avainta) ──────
+// Nominatim sallii vain n. 1 pyynnön/sekunti — jonotetaan pyynnöt peräkkäin,
+// jottei moni samanaikainen haku (paljon otteluita/kenttiä) tuki palvelua.
 const geoCache = {}; // osoite -> {lat, lon} | null (haku epäonnistui) | undefined (ei vielä haettu)
+const geoQueue = [];
+let geoQueueRunning = false;
 
-async function geocodeAddress(addr) {
-  if (geoCache[addr] !== undefined) return geoCache[addr];
-  try {
-    const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fi&q=" + encodeURIComponent(addr);
-    const res = await fetch(url, { headers: { "Accept": "application/json" } });
-    const data = await res.json();
-    geoCache[addr] = (data && data[0]) ? { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) } : null;
-  } catch (err) {
-    geoCache[addr] = null;
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+function geocodeAddress(addr) {
+  if (geoCache[addr] !== undefined) return Promise.resolve(geoCache[addr]);
+  return new Promise(resolve => {
+    geoQueue.push({ addr, resolve });
+    processGeoQueue();
+  });
+}
+
+async function processGeoQueue() {
+  if (geoQueueRunning) return;
+  geoQueueRunning = true;
+  while (geoQueue.length) {
+    const { addr, resolve } = geoQueue.shift();
+    if (geoCache[addr] !== undefined) { resolve(geoCache[addr]); continue; }
+    try {
+      const url = "https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fi&q=" + encodeURIComponent(addr);
+      const res = await fetch(url, { headers: { "Accept": "application/json" } });
+      const data = await res.json();
+      geoCache[addr] = (data && data[0]) ? { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) } : null;
+    } catch (err) {
+      geoCache[addr] = null;
+    }
+    resolve(geoCache[addr]);
+    if (geoQueue.length) await sleep(1100); // kunnioita ~1 pyyntö/sekunti -rajaa
   }
-  return geoCache[addr];
+  geoQueueRunning = false;
 }
 
 function haversineKm(a, b) {
