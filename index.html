@@ -317,7 +317,7 @@ function haversineKm(a, b) {
 }
 
 function formatDistance(km) {
-  if (km <= 1.0) {
+  if (km <= 1.2) {
     const m = Math.round(km * 1000 / 50) * 50; // pyöristys lähimpään 50 m
     return { html: `<span style="color:var(--sub);">🚶 ~${m} m linnuntietä — kävelymatka</span>`, needsCar: false };
   }
