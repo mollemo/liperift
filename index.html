@@ -1009,6 +1009,32 @@ function normalizePvm(pvm) {
   return s;
 }
 
+function normalizeKlo(klo) {
+  const s = String(klo || "").trim();
+  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  return m ? (String(parseInt(m[1], 10)).padStart(2, "0") + ":" + m[2]) : s;
+}
+
+// ─── PÖYTÄKIRJALINKIT (käsin annettu lista, ei tule Sheetistä) ────────────
+// Avain: "päivä|klo|joukkueet" normalisoituna. Ei muuta mitään muuta ottelutietoa.
+const GAME_LINKS = {
+  "27.7|15:30|Manse - Lapuan Virkiä": "https://www.pesistulokset.fi/ottelut/144932",
+  "28.7|10:30|Kiteen Pallo - Manse": "https://www.pesistulokset.fi/ottelut/144945",
+  "28.7|14:30|Harjavallan Jymy - Manse": "https://www.pesistulokset.fi/ottelut/144955",
+  "28.7|18:30|Manse - Kuusankosken Puhti": "https://www.pesistulokset.fi/ottelut/144970",
+  "29.7|08:30|Manse - Nurmon Jymy": "https://www.pesistulokset.fi/ottelut/145973",
+  "29.7|10:30|Kempeleen Kiri - Manse": "https://www.pesistulokset.fi/ottelut/146139",
+  "29.7|14:30|Manse - Roihu": "https://www.pesistulokset.fi/ottelut/144984",
+  "30.7|10:30|Espoon Pesis - Manse": "https://www.pesistulokset.fi/ottelut/144994",
+  "30.7|15:30|Manse - Laitilan Jyske": "https://www.pesistulokset.fi/ottelut/145004",
+  "31.7|10:30|Manse - Koskenkorvan Urheilijat": "https://www.pesistulokset.fi/ottelut/145013",
+};
+
+function findGameLink(g) {
+  const key = normalizePvm(g.pvm) + "|" + normalizeKlo(g.klo) + "|" + String(g.joukkueet || "").trim();
+  return GAME_LINKS[key] || null;
+}
+
 function gameDayInfo(pvm) {
   const norm = normalizePvm(pvm);
   for (let i = 0; i < DAYS.length; i++) {
@@ -1265,6 +1291,10 @@ function renderTalkootTab() {
             const defs = g.home ? HOME_ROLE_DEFS : AWAY_ROLE_DEFS;
             const rolesHtml = defs.map(def => roleRowHtml(g, def)).join("");
             const meta = [g.klo, g.kentta].filter(Boolean).join(" · ");
+            const poytakirjaUrl = g.poytakirja || findGameLink(g);
+            const poytakirjaHtml = poytakirjaUrl
+              ? `<div style="margin-top:4px;"><a class="maplink" href="${esc(poytakirjaUrl)}" target="_blank" rel="noopener">📋 Pesistulokset</a></div>`
+              : "";
             const div = document.createElement("div");
             div.className = "event";
             div.innerHTML = `
@@ -1273,6 +1303,7 @@ function renderTalkootTab() {
                 ${meta ? `<div class="ev-time">${esc(meta)}</div>` : ""}
                 <div class="ev-title">${esc(g.joukkueet)}</div>
                 <div class="ev-sub">${rolesHtml}</div>
+                ${poytakirjaHtml}
               </div>`;
             list.appendChild(div);
           });
@@ -1416,6 +1447,10 @@ function renderEvents() {
       const fieldLine = knownField
         ? `<div style="margin-bottom:4px;">${fieldInfo(g.kentta)}</div>`
         : (g.kentta ? `<div>${esc(g.kentta)}</div>` : "");
+      const poytakirjaUrl2 = g.poytakirja || findGameLink(g);
+      const poytakirjaLine = poytakirjaUrl2
+        ? `<div style="margin-top:4px;"><a class="maplink" href="${esc(poytakirjaUrl2)}" target="_blank" rel="noopener">📋 Pesistulokset</a></div>`
+        : "";
       return {
         time: g.klo,
         endTime: addMin(g.klo, 60),
@@ -1423,7 +1458,7 @@ function renderEvents() {
         color: "ic-red",
         title: esc(g.joukkueet),
         loc: knownField ? g.kentta : null,
-        sub: fieldLine + roleLines,
+        sub: fieldLine + roleLines + poytakirjaLine,
       };
     });
   // Yhdistä päivän kiinteät tapahtumat ja Sheetistä haetut oikeat ottelut
